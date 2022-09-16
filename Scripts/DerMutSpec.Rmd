@@ -1,0 +1,224 @@
+---
+title: "Derive Mutational spectrum"
+author: "Dmitrii Iliushchenko"
+date: "15/9/2022"
+output:
+    html_document:
+      toc: true
+      toc_depth: 3
+      toc_float: true
+      number_section: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+```{r echo=FALSE, message=FALSE}
+rm(list=ls(all=TRUE))
+library(dplyr)
+library(tidyr)
+```
+# Get Neutral ATGC for each species and gene
+
+## Preparing 
+
+### Define Four Fold sites
+```{r}
+VecOfSynFourFoldDegenerateSites <- c('CTT', 'CTC', 'CTA', 'CTG', 
+                                     'GTT', 'GTC', 'GTA', 'GTG', 
+                                     'TCT', 'TCC', 'TCA', 'TCG', 
+                                     'CCT', 'CCC', 'CCA', 'CCG', 
+                                     'ACT', 'ACC', 'ACA', 'ACG', 
+                                     'GCT', 'GCC', 'GCA', 'GCG', 
+                                     'CGT', 'CGC', 'CGA', 'CGG', 
+                                     'GGT', 'GGC', 'GGA', 'GGG')
+```
+
+### Unzip (optionaly) files and get list of them
+```{r}
+#unzip("../Data/1raw/POLARIZEDBR_DATA.zip")
+List = list.files("../Data/1raw/POLARIZEDBR_DATA/")
+```
+
+## Parse into one df and count neutral ATGC
+```{r}
+for (i in 1:length(List)){
+  infile = paste("../Data/1raw/POLARIZEDBR_DATA/",as.character(List[i]),sep='') 
+  if (length(grep('POLARISED',infile)) > 0)
+  {
+    Species = gsub('\\..*','',as.character(List[i]))
+    Gene = gsub(Species,'',as.character(List[i])); Gene = gsub('.POLARISED.txt','',Gene); Gene = gsub('\\.POLARISED.txt','',Gene); Gene = gsub('\\.','',Gene); 
+    GeneSpecies = read.table(infile, header = TRUE)
+    GeneSpecies = GeneSpecies[GeneSpecies$BranchPosition == 'External',]
+    NumOfSeqSpXG = nrow(GeneSpecies)
+    ExternalSeqsTogether = paste(GeneSpecies$MoreShallowNodeSeq,collapse = '')
+    ExternalSeqsTogether = unlist(strsplit(ExternalSeqsTogether,'')) # 5700/3
+    CodonsVec = c(); StartNuc = 1
+    if (length(ExternalSeqsTogether)/3 == round(length(ExternalSeqsTogether)/3))  # if divide by 3 without the rest
+    {
+      for (j in 1:(length(ExternalSeqsTogether)/3))
+      {
+        CodonsVec = c(CodonsVec,paste(ExternalSeqsTogether[StartNuc : (StartNuc+2)],collapse = ''))
+        StartNuc = StartNuc+3
+      }
+      AllCodons = length(CodonsVec)        # 1021
+      CodonsVecNeutral = CodonsVec[CodonsVec %in% VecOfSynFourFoldDegenerateSites]
+      NeutralCodons = length(CodonsVecNeutral) # 1900
+      data.frame(table(CodonsVecNeutral))
+      
+      CodonsVecNeutral = gsub("CTA|GTA|TCA|CCA|ACA|GCA|CGA|GGA",'A',CodonsVecNeutral)
+      CodonsVecNeutral = gsub("CTT|GTT|TCT|CCT|ACT|GCT|CGT|GGT",'T',CodonsVecNeutral)
+      CodonsVecNeutral = gsub("CTG|GTG|TCG|CCG|ACG|GCG|CGG|GGG",'G',CodonsVecNeutral)
+      CodonsVecNeutral = gsub("CTC|GTC|TCC|CCC|ACC|GCC|CGC|GGC",'C',CodonsVecNeutral)
+      
+      Line=c(Species,Gene,length(CodonsVecNeutral[CodonsVecNeutral == 'A']),
+             length(CodonsVecNeutral[CodonsVecNeutral == 'T']),
+             length(CodonsVecNeutral[CodonsVecNeutral == 'G']),
+             length(CodonsVecNeutral[CodonsVecNeutral == 'C']),
+             AllCodons, NeutralCodons, NumOfSeqSpXG)
+      if (i == 1) {Final = Line}
+      if (i >  1) {Final = rbind(Final,Line)}
+    }
+  }
+}
+Final = as.data.frame(Final); names(Final)=c('Species','Gene','A','T','G','C','NumberOfAllCodons',"NumberOfFourFoldDegenCodons",'NumberOfSeq')
+```
+
+
+## Merge with Taxa
+
+### Prepare Taxa before Merging
+
+In both df we cut out third word of sps
+
+```{r}
+
+Taxa = read.table("../Data/1raw/TaxaFromKostya.Names.stat", sep = '\t',header = FALSE) 
+Taxa$Species = gsub(";.*",'',Taxa$V1); 
+for (i in (1:nrow(Taxa)))  {Taxa$Species[i] = paste(unlist(strsplit(as.character(Taxa$Species[i]),split = ' '))[1],unlist(strsplit(as.character(Taxa$Species[i]),split = ' '))[2], sep = '_')}
+Taxa$Class = gsub(";Chordata;.*",'',Taxa$V1); Taxa$Class = gsub(".*;",'',Taxa$Class); table(Taxa$Class)
+Taxa$Class = gsub('Actinopteri','Actinopterygii',Taxa$Class)
+Taxa$Class = gsub("Testudines|Squamata|Crocodylia|Sphenodontia",'Reptilia',Taxa$Class)
+length(unique(Taxa$Species)) # 1708
+table(Taxa$Class)
+Taxa = Taxa[,-1]
+
+TaxaMore = read.table("../Data/1raw/TaxaFromKostya.2NeedTaxa.tax.txt", sep = '\t',header = FALSE) 
+TaxaMore$Species = ''
+for (i in (1:nrow(TaxaMore)))  
+{TaxaMore$Species[i] = paste(unlist(strsplit(as.character(TaxaMore$V1[i]),split = ' '))[1],
+                             unlist(strsplit(as.character(TaxaMore$V1[i]),split = ' '))[2], sep = '_')}
+TaxaMore$Class = gsub("; Chordata;.*",'',TaxaMore$V2); 
+TaxaMore$Class = gsub(".*; ",'',TaxaMore$Class); 
+TaxaMore$Class = gsub('Actinopteri','Actinopterygii',TaxaMore$Class)
+TaxaMore$Class = gsub("Testudines|Squamata|Crocodylia",'Reptilia',TaxaMore$Class)
+table(TaxaMore$Class)
+TaxaMore = TaxaMore[,-c(1,2)]
+
+Taxa = rbind(Taxa,TaxaMore); Taxa = unique(Taxa)
+```
+
+### Merging subs with taxa, if no taxa detected still hold it with NA
+```{r}
+Final = merge(Final,Taxa, all = TRUE, by='Species')
+NeutralATGC = Final
+```
+
+# Read another file with mutational spectra
+
+Here we have **2404 unique species**
+```{r}
+MUT = read.table("../Data/1raw/Mutational_spectra_in_Chordata_ML.txt", header = TRUE)
+length(unique(MUT$Species)) 
+```
+
+# Prepare MUT df to future merging
+
+## Filtration
+
+### Take only normal substitutions and filter out species with too high fraction (> 5%) of unnormal substitutions
+
+Define normal subs
+```{r}
+VecOfNormalSubstitutions <- c('A_C','C_A',
+                              'A_G','G_A',
+                              'C_G','G_C',
+                              'C_T','T_C',
+                              'G_T','T_G',
+                              'T_A','A_T')
+```
+
+Than, select correct one
+```{r}
+SP = data.frame(table(MUT$Species)); names(SP) = c('Species','NumberOfAllSubst')
+SPN = data.frame(table(MUT[MUT$Subs %in% VecOfNormalSubstitutions,]$Species)); names(SPN) = c('Species','NumberOfNormalSubst')
+SP = merge(SP,SPN); SP$FractionOfNormal = SP$NumberOfNormalSubst/SP$NumberOfAllSubst
+
+summary(SP$FractionOfNormal) # how many to delete? ask to have more than 95% of substitutions as normal
+SpeciesToDelete = SP[SP$FractionOfNormal <=0.95,]$Species; length(SpeciesToDelete) # 279 - delete
+MUT = MUT[!MUT$Species %in% SpeciesToDelete,]
+MUT = MUT[MUT$Subs %in% VecOfNormalSubstitutions,]
+```
+
+### Filter Only subs occured in 4fold
+
+Here we have mutations before and after filter
+```{r}
+nrow(MUT)
+MUT = MUT[MUT$AncestralAA == MUT$DescendantAA,]
+MUT4fold = MUT[MUT$AncestorCodon %in% VecOfSynFourFoldDegenerateSites & MUT$DescendantCodon %in% VecOfSynFourFoldDegenerateSites,]; 
+MUT <- NULL
+MUT4fold$Number = 1
+nrow(MUT4fold)
+```
+
+# Counting and normalization
+
+## Count number of different mutations
+```{r}
+AGG = aggregate(MUT4fold$Number, by = list(MUT4fold$Species, MUT4fold$Gene), FUN = sum)
+names(AGG) = c('Species','Gene','NumOfFourFoldMut')
+AGG[is.na(AGG)] <- 0
+MUT4fold = merge(MUT4fold,AGG, by = c('Species', "Gene"))
+MUT4fold = merge(MUT4fold,NeutralATGC[,c(1:6)], by = c("Species", "Gene"))
+NeutralATGC = NULL
+```
+
+## Calculate number of subs in each species and gene
+```{r}
+mut_count = aggregate(MUT4fold$Number, by=list(MUT4fold$Species, MUT4fold$Gene, MUT4fold$Subs), FUN=sum); 
+names(mut_count) = c('Species','Gene','Subs','Freq')
+mut_count =
+  mut_count %>% 
+  pivot_wider(names_from = Subs, values_from = Freq, values_fill = 0)
+
+MUT4fold = merge(MUT4fold,mut_count, by = c('Species', "Gene"))
+```
+
+## Normalization 12 subs
+Normalizing by divide substitution on number of all substitution occurred in each species and gene
+
+```{r}
+MUT4fold$A_C.N = MUT4fold$A_C / MUT4fold$NumOfFourFoldMut
+MUT4fold$A_G.N = MUT4fold$A_G / MUT4fold$NumOfFourFoldMut
+MUT4fold$A_T.N = MUT4fold$A_T / MUT4fold$NumOfFourFoldMut
+MUT4fold$C_A.N = MUT4fold$C_A / MUT4fold$NumOfFourFoldMut
+MUT4fold$C_G.N = MUT4fold$C_G / MUT4fold$NumOfFourFoldMut
+MUT4fold$C_T.N = MUT4fold$C_T / MUT4fold$NumOfFourFoldMut
+MUT4fold$G_A.N = MUT4fold$G_A / MUT4fold$NumOfFourFoldMut
+MUT4fold$G_C.N = MUT4fold$G_C / MUT4fold$NumOfFourFoldMut
+MUT4fold$G_T.N = MUT4fold$G_T / MUT4fold$NumOfFourFoldMut
+MUT4fold$T_A.N = MUT4fold$T_A / MUT4fold$NumOfFourFoldMut
+MUT4fold$T_C.N = MUT4fold$T_C / MUT4fold$NumOfFourFoldMut
+MUT4fold$T_G.N = MUT4fold$T_G / MUT4fold$NumOfFourFoldMut
+```
+
+### Drop unused colums
+```{r}
+MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,Branch, Number))
+```
+### Save table
+```{r}
+write.table(MUT_final, file = '../Data/3results/VertebratePolymorphisms.MutSpecData.txt', quote = FALSE)
+```
