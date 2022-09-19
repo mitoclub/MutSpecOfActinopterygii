@@ -16,8 +16,11 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 
 ```{r echo=FALSE, message=FALSE}
 rm(list=ls(all=TRUE))
+
 library(dplyr)
 library(tidyr)
+library(knitr)
+library(kableExtra)
 ```
 # Get Neutral ATGC for each species and gene
 
@@ -199,24 +202,46 @@ MUT4fold = merge(MUT4fold,mut_count, by = c('Species', "Gene"))
 ## Normalization 12 subs
 Normalizing by divide substitution on number of all substitution occurred in each species and gene
 
+```{r echo = FALSE}
+
+MUT4fold$A = as.numeric(MUT4fold$A)
+MUT4fold$T = as.numeric(MUT4fold$T)
+MUT4fold$G = as.numeric(MUT4fold$G)
+MUT4fold$C = as.numeric(MUT4fold$C)
+
+```
+
+### Calculating FrX for 4 nucl
 ```{r}
-MUT4fold$A_C.N = MUT4fold$A_C / MUT4fold$NumOfFourFoldMut
-MUT4fold$A_G.N = MUT4fold$A_G / MUT4fold$NumOfFourFoldMut
-MUT4fold$A_T.N = MUT4fold$A_T / MUT4fold$NumOfFourFoldMut
-MUT4fold$C_A.N = MUT4fold$C_A / MUT4fold$NumOfFourFoldMut
-MUT4fold$C_G.N = MUT4fold$C_G / MUT4fold$NumOfFourFoldMut
-MUT4fold$C_T.N = MUT4fold$C_T / MUT4fold$NumOfFourFoldMut
-MUT4fold$G_A.N = MUT4fold$G_A / MUT4fold$NumOfFourFoldMut
-MUT4fold$G_C.N = MUT4fold$G_C / MUT4fold$NumOfFourFoldMut
-MUT4fold$G_T.N = MUT4fold$G_T / MUT4fold$NumOfFourFoldMut
-MUT4fold$T_A.N = MUT4fold$T_A / MUT4fold$NumOfFourFoldMut
-MUT4fold$T_C.N = MUT4fold$T_C / MUT4fold$NumOfFourFoldMut
-MUT4fold$T_G.N = MUT4fold$T_G / MUT4fold$NumOfFourFoldMut
+MUT4fold$FrA = MUT4fold$A / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
+MUT4fold$FrT = MUT4fold$T / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
+MUT4fold$FrG = MUT4fold$G / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
+MUT4fold$FrC = MUT4fold$C / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
+```
+
+### Normalization
+```{r}
+MUT4fold$A_C.N = MUT4fold$A_C / (MUT4fold$FrA * 100)
+MUT4fold$A_G.N = MUT4fold$A_G / (MUT4fold$FrA * 100)
+MUT4fold$A_T.N = MUT4fold$A_T / (MUT4fold$FrA * 100)
+MUT4fold$C_A.N = MUT4fold$C_A / (MUT4fold$FrC * 100)
+MUT4fold$C_G.N = MUT4fold$C_G / (MUT4fold$FrC * 100)
+MUT4fold$C_T.N = MUT4fold$C_T / (MUT4fold$FrC * 100)
+MUT4fold$G_A.N = MUT4fold$G_A / (MUT4fold$FrG * 100)
+MUT4fold$G_C.N = MUT4fold$G_C / (MUT4fold$FrG * 100)
+MUT4fold$G_T.N = MUT4fold$G_T / (MUT4fold$FrG * 100)
+MUT4fold$T_A.N = MUT4fold$T_A / (MUT4fold$FrT * 100)
+MUT4fold$T_C.N = MUT4fold$T_C / (MUT4fold$FrT * 100)
+MUT4fold$T_G.N = MUT4fold$T_G / (MUT4fold$FrT * 100)
 ```
 
 ### Drop unused colums
 ```{r}
 MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,Branch, Number))
+MUT_final %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(full_width = F)
 ```
 ### Save table
 ```{r}
