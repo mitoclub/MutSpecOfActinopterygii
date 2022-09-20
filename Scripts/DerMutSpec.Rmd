@@ -184,7 +184,7 @@ AGG = aggregate(MUT4fold$Number, by = list(MUT4fold$Species, MUT4fold$Gene), FUN
 names(AGG) = c('Species','Gene','NumOfFourFoldMut')
 AGG[is.na(AGG)] <- 0
 MUT4fold = merge(MUT4fold,AGG, by = c('Species', "Gene"))
-MUT4fold = merge(MUT4fold,NeutralATGC[,c(1:6)], by = c("Species", "Gene"))
+MUT4fold = merge(MUT4fold,NeutralATGC[,c(1:6,9, 10)], by = c("Species", "Gene"))
 NeutralATGC = NULL
 ```
 
@@ -237,8 +237,15 @@ MUT4fold$T_G.N = MUT4fold$T_G / (MUT4fold$FrT * 100)
 
 ### Drop unused colums
 ```{r}
-MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,Branch, Number))
-MUT_final %>% 
+MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,
+                                         Branch, Number, CodonPosition,
+                                         PreviousAncCodon,    AncestorCodon,
+                                         NextAncCodon,
+                                         PreviousDesCodon,    DescendantCodon,
+                                         NextDesCodon,    AncestralAA,
+                                         DescendantAA,    Subs))
+
+MUT_final[!duplicated(MUT_final[c(1,2)]),] %>% 
   head() %>% 
   kable() %>% 
   kable_styling(full_width = F)

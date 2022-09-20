@@ -1930,7 +1930,7 @@ different mutations</h2>
 names(AGG) = c(&#39;Species&#39;,&#39;Gene&#39;,&#39;NumOfFourFoldMut&#39;)
 AGG[is.na(AGG)] &lt;- 0
 MUT4fold = merge(MUT4fold,AGG, by = c(&#39;Species&#39;, &quot;Gene&quot;))
-MUT4fold = merge(MUT4fold,NeutralATGC[,c(1:6)], by = c(&quot;Species&quot;, &quot;Gene&quot;))
+MUT4fold = merge(MUT4fold,NeutralATGC[,c(1:6,9, 10)], by = c(&quot;Species&quot;, &quot;Gene&quot;))
 NeutralATGC = NULL</code></pre>
 </div>
 <div id="calculate-number-of-subs-in-each-species-and-gene" class="section level2" number="4.2">
@@ -1975,8 +1975,15 @@ MUT4fold$T_G.N = MUT4fold$T_G / (MUT4fold$FrT * 100)</code></pre>
 <div id="drop-unused-colums" class="section level3" number="4.3.3">
 <h3><span class="header-section-number">4.3.3</span> Drop unused
 colums</h3>
-<pre class="r"><code>MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,Branch, Number))
-MUT_final %&gt;% 
+<pre class="r"><code>MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,
+                                         Branch, Number, CodonPosition,
+                                         PreviousAncCodon,    AncestorCodon,
+                                         NextAncCodon,
+                                         PreviousDesCodon,    DescendantCodon,
+                                         NextDesCodon,    AncestralAA,
+                                         DescendantAA,    Subs))
+
+MUT_final[!duplicated(MUT_final[c(1,2)]),] %&gt;% 
   head() %&gt;% 
   kable() %&gt;% 
   kable_styling(full_width = F)</code></pre>
@@ -1984,40 +1991,12 @@ MUT_final %&gt;%
 <thead>
 <tr>
 <th style="text-align:left;">
+</th>
+<th style="text-align:left;">
 Species
 </th>
 <th style="text-align:left;">
 Gene
-</th>
-<th style="text-align:right;">
-CodonPosition
-</th>
-<th style="text-align:left;">
-PreviousAncCodon
-</th>
-<th style="text-align:left;">
-AncestorCodon
-</th>
-<th style="text-align:left;">
-NextAncCodon
-</th>
-<th style="text-align:left;">
-PreviousDesCodon
-</th>
-<th style="text-align:left;">
-DescendantCodon
-</th>
-<th style="text-align:left;">
-NextDesCodon
-</th>
-<th style="text-align:left;">
-AncestralAA
-</th>
-<th style="text-align:left;">
-DescendantAA
-</th>
-<th style="text-align:left;">
-Subs
 </th>
 <th style="text-align:right;">
 NumOfFourFoldMut
@@ -2033,6 +2012,12 @@ G
 </th>
 <th style="text-align:right;">
 C
+</th>
+<th style="text-align:left;">
+NumberOfSeq
+</th>
+<th style="text-align:left;">
+Class
 </th>
 <th style="text-align:right;">
 A_C
@@ -2123,40 +2108,13 @@ T_G.N
 <tbody>
 <tr>
 <td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
 Abbottina_obtusirostris
 </td>
 <td style="text-align:left;">
 CytB
-</td>
-<td style="text-align:right;">
-241
-</td>
-<td style="text-align:left;">
-ACA
-</td>
-<td style="text-align:left;">
-TCA
-</td>
-<td style="text-align:left;">
-CTA
-</td>
-<td style="text-align:left;">
-ACA
-</td>
-<td style="text-align:left;">
-TCG
-</td>
-<td style="text-align:left;">
-CTA
-</td>
-<td style="text-align:left;">
-S
-</td>
-<td style="text-align:left;">
-S
-</td>
-<td style="text-align:left;">
-A_G
 </td>
 <td style="text-align:right;">
 2
@@ -2172,6 +2130,12 @@ A_G
 </td>
 <td style="text-align:right;">
 248
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+Actinopterygii
 </td>
 <td style="text-align:right;">
 0
@@ -2231,16 +2195,16 @@ A_G
 0.0000000
 </td>
 <td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
 0.000000
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.00000
 </td>
 <td style="text-align:right;">
 0.0000000
@@ -2260,687 +2224,582 @@ A_G
 </tr>
 <tr>
 <td style="text-align:left;">
-Abbottina_obtusirostris
+3
+</td>
+<td style="text-align:left;">
+Abbottina_rivularis
+</td>
+<td style="text-align:left;">
+ATP6
+</td>
+<td style="text-align:right;">
+43
+</td>
+<td style="text-align:right;">
+309
+</td>
+<td style="text-align:right;">
+108
+</td>
+<td style="text-align:right;">
+43
+</td>
+<td style="text-align:right;">
+234
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+Actinopterygii
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.4452450
+</td>
+<td style="text-align:right;">
+0.1556196
+</td>
+<td style="text-align:right;">
+0.0619597
+</td>
+<td style="text-align:right;">
+0.3371758
+</td>
+<td style="text-align:right;">
+0.0673786
+</td>
+<td style="text-align:right;">
+0.0224595
+</td>
+<td style="text-align:right;">
+0.0224595
+</td>
+<td style="text-align:right;">
+0.2372650
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+2.098139
+</td>
+<td style="text-align:right;">
+0.3227907
+</td>
+<td style="text-align:right;">
+0.1613953
+</td>
+<td style="text-align:right;">
+0.0642593
+</td>
+<td style="text-align:right;">
+0.7711111
+</td>
+<td style="text-align:right;">
+0.0642593
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+46
+</td>
+<td style="text-align:left;">
+Abbottina_rivularis
+</td>
+<td style="text-align:left;">
+COX1
+</td>
+<td style="text-align:right;">
+103
+</td>
+<td style="text-align:right;">
+547
+</td>
+<td style="text-align:right;">
+318
+</td>
+<td style="text-align:right;">
+188
+</td>
+<td style="text-align:right;">
+385
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+Actinopterygii
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.3803894
+</td>
+<td style="text-align:right;">
+0.2211405
+</td>
+<td style="text-align:right;">
+0.1307371
+</td>
+<td style="text-align:right;">
+0.2677330
+</td>
+<td style="text-align:right;">
+0.1051554
+</td>
+<td style="text-align:right;">
+0.0525777
+</td>
+<td style="text-align:right;">
+0.1840219
+</td>
+<td style="text-align:right;">
+0.4482078
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.4482078
+</td>
+<td style="text-align:right;">
+2.677128
+</td>
+<td style="text-align:right;">
+0.3824468
+</td>
+<td style="text-align:right;">
+0.4589362
+</td>
+<td style="text-align:right;">
+0.1356604
+</td>
+<td style="text-align:right;">
+0.7687421
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+149
+</td>
+<td style="text-align:left;">
+Abbottina_rivularis
+</td>
+<td style="text-align:left;">
+COX2
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+227
+</td>
+<td style="text-align:right;">
+110
+</td>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:right;">
+180
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+Actinopterygii
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.3968531
+</td>
+<td style="text-align:right;">
+0.1923077
+</td>
+<td style="text-align:right;">
+0.0961538
+</td>
+<td style="text-align:right;">
+0.3146853
+</td>
+<td style="text-align:right;">
+0.0755947
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0635556
+</td>
+<td style="text-align:right;">
+0.0317778
+</td>
+<td style="text-align:right;">
+0.1271111
+</td>
+<td style="text-align:right;">
+1.248000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.1040000
+</td>
+<td style="text-align:right;">
+0.1040000
+</td>
+<td style="text-align:right;">
+0.1560000
+</td>
+<td style="text-align:right;">
+0.0520000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+178
+</td>
+<td style="text-align:left;">
+Abbottina_rivularis
+</td>
+<td style="text-align:left;">
+COX3
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+316
+</td>
+<td style="text-align:right;">
+112
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+203
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+Actinopterygii
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.4475921
+</td>
+<td style="text-align:right;">
+0.1586402
+</td>
+<td style="text-align:right;">
+0.1062323
+</td>
+<td style="text-align:right;">
+0.2875354
+</td>
+<td style="text-align:right;">
+0.0893671
+</td>
+<td style="text-align:right;">
+0.1787342
+</td>
+<td style="text-align:right;">
+0.0446835
+</td>
+<td style="text-align:right;">
+0.2434483
+</td>
+<td style="text-align:right;">
+0.0695567
+</td>
+<td style="text-align:right;">
+0.2782266
+</td>
+<td style="text-align:right;">
+1.035467
+</td>
+<td style="text-align:right;">
+0.0941333
+</td>
+<td style="text-align:right;">
+0.0941333
+</td>
+<td style="text-align:right;">
+0.0630357
+</td>
+<td style="text-align:right;">
+0.4412500
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+230
+</td>
+<td style="text-align:left;">
+Abbottina_rivularis
 </td>
 <td style="text-align:left;">
 CytB
 </td>
 <td style="text-align:right;">
-259
+143
+</td>
+<td style="text-align:right;">
+1383
+</td>
+<td style="text-align:right;">
+322
+</td>
+<td style="text-align:right;">
+377
+</td>
+<td style="text-align:right;">
+789
 </td>
 <td style="text-align:left;">
-CCT
+14
 </td>
 <td style="text-align:left;">
-GCT
-</td>
-<td style="text-align:left;">
-AAC
-</td>
-<td style="text-align:left;">
-CCT
-</td>
-<td style="text-align:left;">
-GCC
-</td>
-<td style="text-align:left;">
-AAC
-</td>
-<td style="text-align:left;">
-A
-</td>
-<td style="text-align:left;">
-A
-</td>
-<td style="text-align:left;">
-T_C
+Actinopterygii
 </td>
 <td style="text-align:right;">
-2
+4
 </td>
 <td style="text-align:right;">
-504
-</td>
-<td style="text-align:right;">
-172
-</td>
-<td style="text-align:right;">
-97
-</td>
-<td style="text-align:right;">
-248
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.4936337
-</td>
-<td style="text-align:right;">
-0.1684623
-</td>
-<td style="text-align:right;">
-0.0950049
-</td>
-<td style="text-align:right;">
-0.2428991
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.0202579
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.000000
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.00000
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.0593605
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Abbottina_rivularis
-</td>
-<td style="text-align:left;">
-ATP6
-</td>
-<td style="text-align:right;">
-80
-</td>
-<td style="text-align:left;">
-TTC
-</td>
-<td style="text-align:left;">
-CTT
-</td>
-<td style="text-align:left;">
-ATT
-</td>
-<td style="text-align:left;">
-TTC
-</td>
-<td style="text-align:left;">
-CTA
-</td>
-<td style="text-align:left;">
-ATT
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-T_A
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-309
-</td>
-<td style="text-align:right;">
-108
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-234
+14
 </td>
 <td style="text-align:right;">
 3
 </td>
 <td style="text-align:right;">
-1
+19
 </td>
 <td style="text-align:right;">
 1
 </td>
 <td style="text-align:right;">
-8
+24
 </td>
 <td style="text-align:right;">
-0
+47
 </td>
 <td style="text-align:right;">
-0
+11
 </td>
 <td style="text-align:right;">
-13
+9
 </td>
 <td style="text-align:right;">
-2
+4
 </td>
 <td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-12
+6
 </td>
 <td style="text-align:right;">
 1
 </td>
 <td style="text-align:right;">
-0.4452450
+0.4817137
 </td>
 <td style="text-align:right;">
-0.1556196
+0.1121560
 </td>
 <td style="text-align:right;">
-0.0619597
+0.1313131
 </td>
 <td style="text-align:right;">
-0.3371758
+0.2748171
 </td>
 <td style="text-align:right;">
-0.0673786
+0.0830369
 </td>
 <td style="text-align:right;">
-0.0224595
+0.2906291
 </td>
 <td style="text-align:right;">
-0.0224595
+0.0622777
 </td>
 <td style="text-align:right;">
-0.237265
+0.6913688
 </td>
 <td style="text-align:right;">
-0
+0.0363878
 </td>
 <td style="text-align:right;">
-0
+0.8733080
 </td>
 <td style="text-align:right;">
-2.09814
+3.579231
 </td>
 <td style="text-align:right;">
-0.3227907
+0.8376923
 </td>
 <td style="text-align:right;">
-0.1613953
+0.6853846
 </td>
 <td style="text-align:right;">
-0.0642593
+0.3566460
 </td>
 <td style="text-align:right;">
-0.7711111
+0.5349689
 </td>
 <td style="text-align:right;">
-0.0642593
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Abbottina_rivularis
-</td>
-<td style="text-align:left;">
-ATP6
-</td>
-<td style="text-align:right;">
-218
-</td>
-<td style="text-align:left;">
-CTC
-</td>
-<td style="text-align:left;">
-CTA
-</td>
-<td style="text-align:left;">
-CTA
-</td>
-<td style="text-align:left;">
-CTC
-</td>
-<td style="text-align:left;">
-CTC
-</td>
-<td style="text-align:left;">
-CTA
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-L
-</td>
-<td style="text-align:left;">
-A_C
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-309
-</td>
-<td style="text-align:right;">
-108
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-234
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.4452450
-</td>
-<td style="text-align:right;">
-0.1556196
-</td>
-<td style="text-align:right;">
-0.0619597
-</td>
-<td style="text-align:right;">
-0.3371758
-</td>
-<td style="text-align:right;">
-0.0673786
-</td>
-<td style="text-align:right;">
-0.0224595
-</td>
-<td style="text-align:right;">
-0.0224595
-</td>
-<td style="text-align:right;">
-0.237265
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-2.09814
-</td>
-<td style="text-align:right;">
-0.3227907
-</td>
-<td style="text-align:right;">
-0.1613953
-</td>
-<td style="text-align:right;">
-0.0642593
-</td>
-<td style="text-align:right;">
-0.7711111
-</td>
-<td style="text-align:right;">
-0.0642593
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Abbottina_rivularis
-</td>
-<td style="text-align:left;">
-ATP6
-</td>
-<td style="text-align:right;">
-190
-</td>
-<td style="text-align:left;">
-TTA
-</td>
-<td style="text-align:left;">
-GCG
-</td>
-<td style="text-align:left;">
-GTA
-</td>
-<td style="text-align:left;">
-TTA
-</td>
-<td style="text-align:left;">
-GCA
-</td>
-<td style="text-align:left;">
-GTA
-</td>
-<td style="text-align:left;">
-A
-</td>
-<td style="text-align:left;">
-A
-</td>
-<td style="text-align:left;">
-G_A
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-309
-</td>
-<td style="text-align:right;">
-108
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-234
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.4452450
-</td>
-<td style="text-align:right;">
-0.1556196
-</td>
-<td style="text-align:right;">
-0.0619597
-</td>
-<td style="text-align:right;">
-0.3371758
-</td>
-<td style="text-align:right;">
-0.0673786
-</td>
-<td style="text-align:right;">
-0.0224595
-</td>
-<td style="text-align:right;">
-0.0224595
-</td>
-<td style="text-align:right;">
-0.237265
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-2.09814
-</td>
-<td style="text-align:right;">
-0.3227907
-</td>
-<td style="text-align:right;">
-0.1613953
-</td>
-<td style="text-align:right;">
-0.0642593
-</td>
-<td style="text-align:right;">
-0.7711111
-</td>
-<td style="text-align:right;">
-0.0642593
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Abbottina_rivularis
-</td>
-<td style="text-align:left;">
-ATP6
-</td>
-<td style="text-align:right;">
-42
-</td>
-<td style="text-align:left;">
-AAC
-</td>
-<td style="text-align:left;">
-CGG
-</td>
-<td style="text-align:left;">
-CTT
-</td>
-<td style="text-align:left;">
-AAC
-</td>
-<td style="text-align:left;">
-CGA
-</td>
-<td style="text-align:left;">
-CTT
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-R
-</td>
-<td style="text-align:left;">
-G_A
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-309
-</td>
-<td style="text-align:right;">
-108
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-234
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.4452450
-</td>
-<td style="text-align:right;">
-0.1556196
-</td>
-<td style="text-align:right;">
-0.0619597
-</td>
-<td style="text-align:right;">
-0.3371758
-</td>
-<td style="text-align:right;">
-0.0673786
-</td>
-<td style="text-align:right;">
-0.0224595
-</td>
-<td style="text-align:right;">
-0.0224595
-</td>
-<td style="text-align:right;">
-0.237265
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-2.09814
-</td>
-<td style="text-align:right;">
-0.3227907
-</td>
-<td style="text-align:right;">
-0.1613953
-</td>
-<td style="text-align:right;">
-0.0642593
-</td>
-<td style="text-align:right;">
-0.7711111
-</td>
-<td style="text-align:right;">
-0.0642593
+0.0891615
 </td>
 </tr>
 </tbody>
