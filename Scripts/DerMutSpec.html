@@ -1983,7 +1983,8 @@ colums</h3>
                                          NextDesCodon,    AncestralAA,
                                          DescendantAA,    Subs))
 
-MUT_final[!duplicated(MUT_final[c(1,2)]),] %&gt;% 
+MUT_final = MUT_final[!duplicated(MUT_final[c(1,2)]),]
+MUT_final %&gt;% 
   head() %&gt;% 
   kable() %&gt;% 
   kable_styling(full_width = F)</code></pre>

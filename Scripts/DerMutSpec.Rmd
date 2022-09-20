@@ -245,7 +245,8 @@ MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,
                                          NextDesCodon,    AncestralAA,
                                          DescendantAA,    Subs))
 
-MUT_final[!duplicated(MUT_final[c(1,2)]),] %>% 
+MUT_final = MUT_final[!duplicated(MUT_final[c(1,2)]),]
+MUT_final %>% 
   head() %>% 
   kable() %>% 
   kable_styling(full_width = F)
