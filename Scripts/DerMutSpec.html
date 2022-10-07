@@ -2806,8 +2806,16 @@ Actinopterygii
 </tbody>
 </table>
 </div>
-<div id="save-table" class="section level3" number="4.3.4">
-<h3><span class="header-section-number">4.3.4</span> Save table</h3>
+<div id="add-temperature-and-maturation" class="section level3" number="4.3.4">
+<h3><span class="header-section-number">4.3.4</span> Add Temperature and
+Maturation</h3>
+<pre class="r"><code>tm = read.table(&#39;../Data/1raw/FishBaseTemperature.txt&#39;, header=T)
+matur = read.table(&#39;../Data/1raw/FishBaseMaturity_Tm.txt&#39;, header=T)
+MUT_final = merge(MUT_final, tm, by=&#39;Species&#39;, all=T)
+MUT_final = merge(MUT_final, matur, by=&#39;Species&#39;, all=T)</code></pre>
+</div>
+<div id="save-table" class="section level3" number="4.3.5">
+<h3><span class="header-section-number">4.3.5</span> Save table</h3>
 <pre class="r"><code>write.table(MUT_final, file = &#39;../Data/3results/VertebratePolymorphisms.MutSpecData.txt&#39;, quote = FALSE)</code></pre>
 </div>
 </div>

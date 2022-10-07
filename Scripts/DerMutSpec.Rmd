@@ -251,6 +251,14 @@ MUT_final %>%
   kable() %>% 
   kable_styling(full_width = F)
 ```
+
+### Add Temperature and Maturation
+```{r}
+tm = read.table('../Data/1raw/FishBaseTemperature.txt', header=T)
+matur = read.table('../Data/1raw/FishBaseMaturity_Tm.txt', header=T)
+MUT_final = merge(MUT_final, tm, by='Species', all=T)
+MUT_final = merge(MUT_final, matur, by='Species', all=T)
+```
 ### Save table
 ```{r}
 write.table(MUT_final, file = '../Data/3results/VertebratePolymorphisms.MutSpecData.txt', quote = FALSE)
