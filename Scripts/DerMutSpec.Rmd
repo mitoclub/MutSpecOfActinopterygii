@@ -124,7 +124,7 @@ Taxa = rbind(Taxa,TaxaMore); Taxa = unique(Taxa)
 
 ### Merging subs with taxa, if no taxa detected still hold it with NA
 ```{r}
-Final = merge(Final,Taxa, all = TRUE, by='Species')
+Final = merge(Final,Taxa, all.x = TRUE, by='Species')
 NeutralATGC = Final
 ```
 
@@ -255,9 +255,11 @@ MUT_final %>%
 ### Add Temperature and Maturation
 ```{r}
 tm = read.table('../Data/1raw/FishBaseTemperature.txt', header=T)
+tm = tm %>% group_by(Species) %>% summarise(temperature = median(Temperature))
 matur = read.table('../Data/1raw/FishBaseMaturity_Tm.txt', header=T)
-MUT_final = merge(MUT_final, tm, by='Species', all=T)
-MUT_final = merge(MUT_final, matur, by='Species', all=T)
+matur = matur %>% group_by(Species) %>% summarise(matur_tm = median(Tm))
+MUT_final = merge(MUT_final, tm, by='Species', all.x=T)
+MUT_final = merge(MUT_final, matur, by='Species', all.x=T)
 ```
 ### Save table
 ```{r}
