@@ -1,0 +1,77 @@
+---
+title: "Actinopterygii polymorhism analyses"
+author: "Alina G. Mikhailova"
+date: "2022-10-25"
+output:    
+   html_document:
+      toc: true
+      toc_depth: 3
+      toc_float: true
+      number_section: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE, message=FALSE}
+rm(list=ls(all=TRUE))
+if (!require(caper)) install.packages("caper")
+if (!require(geiger)) install.packages("geiger")
+if (!require(ggpubr)) install.packages("ggpubr")
+if (!require(ggplot2)) install.packages("ggplot2")
+if (!require(hrbrthemes)) install.packages("hrbrthemes")
+library(caper)
+library(geiger)
+library("ggpubr")
+library(ggplot2)
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed()
+```
+
+#Reading MutSpec DataBase with temperature and mt of Actinopterigii 
+
+```{r}
+mutSpec = read.table('../Data/3results/VertebratePolymorphisms.MutSpecData.txt', header = TRUE)
+```
+
+#Correlation of MutSpec with temperature
+
+```{r} 
+cor.test(mutSpec$A_T.N,mutSpec$temperature, method = 'spearman')  
+cor.test(mutSpec$A_G.N,mutSpec$temperature, method = 'spearman')  
+cor.test(mutSpec$A_C.N,mutSpec$temperature, method = 'spearman')    
+cor.test(mutSpec$T_A.N,mutSpec$temperature, method = 'spearman')   
+cor.test(mutSpec$T_G.N,mutSpec$temperature, method = 'spearman')   
+cor.test(mutSpec$T_C.N,mutSpec$temperature, method = 'spearman')   
+cor.test(mutSpec$G_A.N,mutSpec$temperature, method = 'spearman')    
+cor.test(mutSpec$G_T.N,mutSpec$temperature, method = 'spearman')   
+cor.test(mutSpec$G_C.N,mutSpec$temperature, method = 'spearman')    
+cor.test(mutSpec$C_A.N,mutSpec$temperature, method = 'spearman')   
+cor.test(mutSpec$C_T.N,mutSpec$temperature, method = 'spearman')     
+cor.test(mutSpec$C_G.N,mutSpec$temperature, method = 'spearman')    
+```
+
+#Figures
+
+```{r message=FALSE, warning= FALSE}
+f1a = ggscatter(mutSpec, x = "temperature", y = "T_C.N",
+          color = "#036a5b", # Points color, shape and size
+          add = "reg.line",  # Add regressin line
+          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+          conf.int = TRUE, # Add confidence interval
+          xlab="Mean annual water temperature, ?C", ylab="AH>GH") 
+ggpar(f1a, ylim = c(0, max(mutSpec[!is.na(mutSpec$temperature),]$T_C.N)+1))
+
+```
+
+```{r message=FALSE, warning= FALSE}
+f1b = ggscatter(mutSpec, x = "temperature", y = "A_G.N",
+          color = "#73514f", # Points color, shape and size
+          add = "reg.line",  # Add regressin line
+          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+          conf.int = TRUE, # Add confidence interval
+          xlab="Mean annual water temperature, ?C", ylab="TH>CH") 
+ggpar(f1b, ylim = c(0, max(mutSpec[!is.na(mutSpec$temperature),]$A_G.N)+1)) 
+
+```
