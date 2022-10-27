@@ -3,123 +3,88 @@ rm(list=ls(all=TRUE))
 if (!require(caper)) install.packages("caper")
 if (!require(geiger)) install.packages("geiger")
 if (!require(ggpubr)) install.packages("ggpubr")
-if (!require(ggplot2)) install.packages("ggplot2")
-if (!require(hrbrthemes)) install.packages("hrbrthemes")
+if (!require(dplyr)) install.packages("dplyr")
 library(caper)
 library(geiger)
-library("ggpubr")
-library(ggplot2)
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed()
+library(ggpubr)
+library(dplyr)
 
 ##########Reading MutSpec DataBase with temp and mt of Actinopterigii 
 mutSpec = read.table('../Data/3results/VertebratePolymorphisms.MutSpecData.txt', header = TRUE)
 table(mutSpec$Class)
 
+mutSpecCytB = mutSpec[mutSpec$Gene == "CytB",]
+mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %>% summarise(A_C.N=mean(A_C.N), A_G.N=mean(A_G.N), A_T.N=mean(A_T.N), C_A.N=mean(C_A.N), C_G.N=mean(C_G.N), C_T.N=mean(C_T.N), G_A.N=mean(G_A.N), G_C.N=mean(G_C.N), G_T.N=mean(G_T.N), T_A.N=mean(T_A.N), T_C.N=mean(T_C.N), T_G.N=mean(T_G.N))
+table(mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]$Class)
 
-
-#####correlation of mutspec with temperature in fishes
-cor.test(mutSpec$A_T.N,mutSpec$temperature, method = 'spearman')   #rho
-cor.test(mutSpec$A_G.N,mutSpec$temperature, method = 'spearman')   #rho     0.082413817 p-value = 0.08041
-cor.test(mutSpec$A_C.N,mutSpec$temperature, method = 'spearman')   #rho   
-cor.test(mutSpec$T_A.N,mutSpec$temperature, method = 'spearman')   #rho   
-cor.test(mutSpec$T_G.N,mutSpec$temperature, method = 'spearman')   #rho  
-cor.test(mutSpec$T_C.N,mutSpec$temperature, method = 'spearman')   #rho     0.3427546 p-value = 7.059e-14
-cor.test(mutSpec$G_A.N,mutSpec$temperature, method = 'spearman')   #rho   
-cor.test(mutSpec$G_T.N,mutSpec$temperature, method = 'spearman')   #rho  
-cor.test(mutSpec$G_C.N,mutSpec$temperature, method = 'spearman')   #rho  
-cor.test(mutSpec$C_A.N,mutSpec$temperature, method = 'spearman')   #rho   
-cor.test(mutSpec$C_T.N,mutSpec$temperature, method = 'spearman')   #rho   
-cor.test(mutSpec$C_G.N,mutSpec$temperature, method = 'spearman')   #rho 
-
-
+#only CytB
+cor.test(mutSpecCytB$A_T.N,mutSpecCytB$temperature, method = 'spearman')   
+cor.test(mutSpecCytB$A_G.N,mutSpecCytB$temperature, method = 'spearman')      
+cor.test(mutSpecCytB$A_C.N,mutSpecCytB$temperature, method = 'spearman')      
+cor.test(mutSpecCytB$T_A.N,mutSpecCytB$temperature, method = 'spearman')   
+cor.test(mutSpecCytB$T_G.N,mutSpecCytB$temperature, method = 'spearman')   
+cor.test(mutSpecCytB$T_C.N,mutSpecCytB$temperature, method = 'spearman')       
+cor.test(mutSpecCytB$G_A.N,mutSpecCytB$temperature, method = 'spearman')    
+cor.test(mutSpecCytB$G_T.N,mutSpecCytB$temperature, method = 'spearman')    
+cor.test(mutSpecCytB$G_C.N,mutSpecCytB$temperature, method = 'spearman')    
+cor.test(mutSpecCytB$C_A.N,mutSpecCytB$temperature, method = 'spearman')     
+cor.test(mutSpecCytB$C_T.N,mutSpecCytB$temperature, method = 'spearman')     
+cor.test(mutSpecCytB$C_G.N,mutSpecCytB$temperature, method = 'spearman')    
+#all by mean
+cor.test(mutSpecAllMean$A_T.N,mutSpecAllMean$temperature, method = 'spearman')   
+cor.test(mutSpecAllMean$A_G.N,mutSpecAllMean$temperature, method = 'spearman')      
+cor.test(mutSpecAllMean$A_C.N,mutSpecAllMean$temperature, method = 'spearman')      
+cor.test(mutSpecAllMean$T_A.N,mutSpecAllMean$temperature, method = 'spearman')   
+cor.test(mutSpecAllMean$T_G.N,mutSpecAllMean$temperature, method = 'spearman')   
+cor.test(mutSpecAllMean$T_C.N,mutSpecAllMean$temperature, method = 'spearman')       
+cor.test(mutSpecAllMean$G_A.N,mutSpecAllMean$temperature, method = 'spearman')    
+cor.test(mutSpecAllMean$G_T.N,mutSpecAllMean$temperature, method = 'spearman')    
+cor.test(mutSpecAllMean$G_C.N,mutSpecAllMean$temperature, method = 'spearman')    
+cor.test(mutSpecAllMean$C_A.N,mutSpecAllMean$temperature, method = 'spearman')     
+cor.test(mutSpecAllMean$C_T.N,mutSpecAllMean$temperature, method = 'spearman')     
+cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$temperature, method = 'spearman') 
 
 ##Figures
-samplesize = length(unique(mutSpec[!is.na(mutSpec$temperature),]$Species))
-
-table(mutSpec$T_C.N)
 
 pdf('../Figures/VertebratePolymorphisms.MutSpecData.Actinopterygii.pdf')
-f1a = ggscatter(mutSpec, x = "temperature", y = "T_C.N",
-          color = "#036a5b", # Points color, shape and size
-          add = "reg.line",  # Add regressin line
-          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
-          conf.int = TRUE, # Add confidence interval
-          xlab="Mean annual water temperature, ?C", ylab="AH>GH") 
-ggpar(f1a, ylim = c(0, max(mutSpec[!is.na(mutSpec$temperature),]$T_C.N)+1))
+mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]; N = as.character(paste("N", nrow(mutSpecAllMean), sep="")) #delete NA
+f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "T_C.N",
+                color = "#036a5b", # Points color, shape and size
+                add = "reg.line",  # Add regressin line
+                add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+                conf.int = TRUE, # Add confidence interval
+                xlab="Median annual water temperature, ?C", ylab="AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1a
 
-
-
-f1b = ggscatter(mutSpec, x = "temperature", y = "A_G.N",
-          color = "#73514f", # Points color, shape and size
-          add = "reg.line",  # Add regressin line
-          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
-          conf.int = TRUE, # Add confidence interval
-          xlab="Mean annual water temperature, ?C", ylab="TH>CH") 
-ggpar(f1b, ylim = c(0, max(mutSpec[!is.na(mutSpec$temperature),]$A_G.N)+1)) 
-
-
+f1b = ggscatter(mutSpecAllMean, x = "temperature", y = "A_G.N",
+                color = "#73514f", # Points color, shape and size
+                add = "reg.line",  # Add regressin line
+                add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+                conf.int = TRUE, # Add confidence interval
+                xlab="Median annual water temperature, ?C", ylab="TH>CH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1b
 dev.off()
 
-##########obtaining maturation time: Lm (mean length at first maturity)  and Tm (Mean or median age at first maturity)
-MATULM = read.table('../../Body/1Raw/FishBaseMaturity_Lm.txt',  header = TRUE, stringsAsFactors = FALSE)
-MATUTM = read.table('../../Body/1Raw/FishBaseMaturity_Tm.txt',  header = TRUE)
-class(MATULM$Lm)
-class(MATUTM$Tm)
-MATULM$Lm = as.numeric(MATULM$Lm)
-table(MATULM$Lm)
-MATULM = MATULM[!is.na(MATULM$Lm),]
-MATUTM = aggregate(Tm ~ ., median, data = MATUTM) 
-MATULM = aggregate(Lm ~ ., median, data = MATULM)
-MATULmmut = merge(MUT,MATULM) 
-MATUTmmut = merge(MUT,MATUTM)
 
 #####correlation of mutspec with time of maturation in fishes
-cor.test(MATULmmut$A_T,MATULmmut$Lm, method = 'spearman')   #rho  
-cor.test(MATULmmut$A_G,MATULmmut$Lm, method = 'spearman')   #rho            
-cor.test(MATULmmut$A_C,MATULmmut$Lm, method = 'spearman')   #rho   
-cor.test(MATULmmut$T_A,MATULmmut$Lm, method = 'spearman')   #rho   
-cor.test(MATULmmut$T_G,MATULmmut$Lm, method = 'spearman')   #rho   
-cor.test(MATULmmut$T_C,MATULmmut$Lm, method = 'spearman')   #rho      
-cor.test(MATULmmut$G_A,MATULmmut$Lm, method = 'spearman')   #rho   
-cor.test(MATULmmut$G_T,MATULmmut$Lm, method = 'spearman')   #rho   
-cor.test(MATULmmut$G_C,MATULmmut$Lm, method = 'spearman')   #rho  -0.266859         p-value = 0.008235
-cor.test(MATULmmut$C_A,MATULmmut$Lm, method = 'spearman')   #rho     
-cor.test(MATULmmut$C_T,MATULmmut$Lm, method = 'spearman')   #rho    
-cor.test(MATULmmut$C_G,MATULmmut$Lm, method = 'spearman')   #rho   
-
-cor.test(MATUTmmut$A_T,MATUTmmut$Tm, method = 'spearman')   #rho  
-cor.test(MATUTmmut$A_G,MATUTmmut$Tm, method = 'spearman')   #rho            
-cor.test(MATUTmmut$A_C,MATUTmmut$Tm, method = 'spearman')   #rho   
-cor.test(MATUTmmut$T_A,MATUTmmut$Tm, method = 'spearman')   #rho   
-cor.test(MATUTmmut$T_G,MATUTmmut$Tm, method = 'spearman')   #rho   
-cor.test(MATUTmmut$T_C,MATUTmmut$Tm, method = 'spearman')   #rho       
-cor.test(MATUTmmut$G_A,MATUTmmut$Tm, method = 'spearman')   #rho   
-cor.test(MATUTmmut$G_T,MATUTmmut$Tm, method = 'spearman')   #rho   
-###SupplMat 1f
-cor.test(MATUTmmut$G_C,MATUTmmut$Tm, method = 'spearman')   #rho  -0.2219755     p-value = 0.0222
-cor.test(MATUTmmut$C_A,MATUTmmut$Tm, method = 'spearman')   #rho     
-cor.test(MATUTmmut$C_T,MATUTmmut$Tm, method = 'spearman')   #rho    
-cor.test(MATUTmmut$C_G,MATUTmmut$Tm, method = 'spearman')   #rho   
-
-########Supplementary table 2
-allatall=merge(MUT, TEMPE, all = TRUE)
-allatall=merge(allatall, MATUTM, all = TRUE)
-allatall=allatall[!is.na(allatall$Temperature) | !is.na(allatall$Tm),]
-allatall=allatall[!is.na(allatall$A_G) & !is.na(allatall$A_T),]
-
-allatall1=allatall[allatall$A_G != 0,]
-allatall1=allatall1[allatall1$T_C != 0,]
-allatall1$AGdivTC=allatall1$T_C/allatall1$A_G
-allatall=merge(allatall, allatall1, all = TRUE)
-allatall=allatall[order(allatall$AGdivTC),]
-write.table(allatall, file = "../../Body/2Derived/Supplementary_table_2.txt", row.names = FALSE)
-
+#all by mean
+cor.test(mutSpecAllMean$A_T.N,mutSpecAllMean$matur_tm, method = 'spearman')   
+cor.test(mutSpecAllMean$A_G.N,mutSpecAllMean$matur_tm, method = 'spearman')      
+cor.test(mutSpecAllMean$A_C.N,mutSpecAllMean$matur_tm, method = 'spearman')      
+cor.test(mutSpecAllMean$T_A.N,mutSpecAllMean$matur_tm, method = 'spearman')   
+cor.test(mutSpecAllMean$T_G.N,mutSpecAllMean$matur_tm, method = 'spearman')   
+cor.test(mutSpecAllMean$T_C.N,mutSpecAllMean$matur_tm, method = 'spearman')       
+cor.test(mutSpecAllMean$G_A.N,mutSpecAllMean$matur_tm, method = 'spearman')    
+cor.test(mutSpecAllMean$G_T.N,mutSpecAllMean$matur_tm, method = 'spearman')    
+cor.test(mutSpecAllMean$G_C.N,mutSpecAllMean$matur_tm, method = 'spearman')    
+cor.test(mutSpecAllMean$C_A.N,mutSpecAllMean$matur_tm, method = 'spearman')     
+cor.test(mutSpecAllMean$C_T.N,mutSpecAllMean$matur_tm, method = 'spearman')     
+cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$matur_tm, method = 'spearman')
 
 
 #####################################################
 ############Multiple models##########################
-allparameters=TemperMut #128 species
+
 ###SupplMat 1b
 summary(lm(formula = Temperature ~ scale(T_C) + scale(A_G), data = allparameters))
 ###SupplMat 1d
