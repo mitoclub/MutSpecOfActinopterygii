@@ -66,6 +66,24 @@ f1b
 dev.off()
 
 
+######### TC / AG rank corr and log2 models
+mutSpecAllMean$TCdivAG=mutSpecAllMean$T_C.N/mutSpecAllMean$A_G.N
+mutSpecAllMean[mutSpecAllMean$TCdivAG == "Inf" | mutSpecAllMean$TCdivAG == "NaN",]$TCdivAG = NA
+cor.test(mutSpecAllMean$TCdivAG,mutSpecAllMean$temperature, method = 'spearman')
+
+
+
+pdf('../Figures/VertebratePolymorphisms.MutSpecData.Actinopterygii.AGTC.pdf')
+f1c = ggscatter(mutSpecAllMean, x = "temperature", y = "TCdivAG",
+                color = "#814194", # Points color, shape and size
+                add = "reg.line",  # Add regressin line
+                add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+                conf.int = TRUE, # Add confidence interval
+                yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 A_GdivT_C")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1c
+dev.off()
+
+
 #####correlation of mutspec with time of maturation in fishes
 #all by mean
 cor.test(mutSpecAllMean$A_T.N,mutSpecAllMean$matur_tm, method = 'spearman')   
@@ -85,72 +103,27 @@ cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$matur_tm, method = 'spearman')
 #####################################################
 ############Multiple models##########################
 
-###SupplMat 1b
-summary(lm(formula = Temperature ~ scale(T_C) + scale(A_G), data = allparameters))
-###SupplMat 1d
-allparameters=merge(TemperMut, MATUTM)#65 species
-summary(lm(formula = T_C ~ scale(Temperature) * scale(Tm), data = allparameters))
-summary(lm(formula = T_C ~ scale(Temperature) + scale(Tm), data = allparameters))
-summary(lm(formula = T_C ~ scale(Temperature), data = allparameters))
-summary(lm(formula = A_G ~ scale(Temperature) + scale(Tm), data = allparameters))
-summary(lm(formula = A_G ~ scale(Temperature), data = allparameters))
+summary(lm(formula = temperature ~ scale(T_C.N) + scale(A_G.N), data = mutSpecAllMean))
+summary(lm(formula = T_C.N ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = T_C.N ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = T_C.N ~ scale(temperature), data = mutSpecAllMean))
+summary(lm(formula = A_G.N ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = A_G.N ~ scale(temperature), data = mutSpecAllMean))
 
+mutSpecAllMeanNAzeroomit = mutSpecAllMean[!is.na(mutSpecAllMean$TCdivAG),]
+mutSpecAllMeanNAzeroomit = mutSpecAllMeanNAzeroomit[mutSpecAllMeanNAzeroomit$TCdivAG != 0,]
 
-### TC / AG rank corr and log2 models
-allparameters=TemperMut #128 species
-allparameters=allparameters[allparameters$A_G != 0,]
-allparameters=allparameters[allparameters$T_C != 0,]
-allparameters$TCdivAG=allparameters$T_C/allparameters$A_G
-###SupplMat 1a
-cor.test(allparameters$TCdivAG,allparameters$Temperature, method = 'spearman')  
-
-
-summary(lm(formula = log2(TCdivAG) ~ scale(Temperature), data = allparameters))
-summary(lm(formula = Temperature ~ scale(TCdivAG), data = allparameters))
-
-allparameters=merge(TemperMut, MATUTM)#65 species
-
-allparameters=allparameters[allparameters$A_G != 0,]
-allparameters=allparameters[allparameters$T_C != 0,]
-allparameters$TCdivAG=allparameters$T_C/allparameters$A_G
-allparameters=allparameters[order(allparameters$A_G),]
-
-###SupplMat 1e
-summary(lm(formula = Temperature ~ scale(TCdivAG), data = allparameters))
-summary(lm(formula = log2(TCdivAG) ~ scale(Temperature), data = allparameters))
-
-samplesize = paste("N==", as.character(nrow(allparameters)), sep="")
-
-##Figures
-#pdf("../../Body/4Figures/VertebratePolymorphisms.MutSpecComparisons.Analyses.Ecology.Actinopterygii.FishBaseData.FIGURE1C.pdf")
-ggscatter(allparameters, x = "Temperature", y = "TCdivAG",
-          color = c("#814194"), # Points color, shape and size
-          add = "reg.line",  # Add regressin line
-          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
-          conf.int = TRUE, # Add confidence interval
-          yscale = "log2", xlab="Mean annual water temperature, ?C", ylab="log2 A_GdivT_C")+ stat_cor(
-  aes(label = paste(..rr.label.., ..p.label.., samplesize, sep = "~`,`~")), 
-  label.x = 3
-)
-#dev.off()
-
-
-
-
-
-
-
-
-
+summary(lm(formula = log2(TCdivAG) ~ scale(temperature), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = temperature ~ scale(TCdivAG), data = mutSpecAllMeanNAzeroomit))
 
 ########################################################################################################
 ### PICs ###############################################################################################
 ########################################################################################################
-tree = read.tree('../../Body/1Raw/mtalign.aln.treefile.rooted')
+tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
 
-row.names(allparameters) = allparameters$Species
+row.names(mutSpecAllMeanNAzeroomit) = mutSpecAllMeanNAzeroomit$Species
 
-tree_pruned = treedata(tree, allparameters, sort=T, warnings=T)$phy
+tree_pruned = treedata(tree, mutSpecAllMeanNAzeroomit, sort=T, warnings=T)$phy
 
 #   Not found in the tree and were dropped from the dataframe:
 # Boops_boops
