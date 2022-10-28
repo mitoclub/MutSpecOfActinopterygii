@@ -49,20 +49,30 @@ cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$temperature, method = 'spearman')
 pdf('../Figures/VertebratePolymorphisms.MutSpecData.Actinopterygii.pdf')
 mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]; N = as.character(paste("N", nrow(mutSpecAllMean), sep="")) #delete NA
 f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "T_C.N",
-                color = "#036a5b", # Points color, shape and size
-                add = "reg.line",  # Add regressin line
-                add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
-                conf.int = TRUE, # Add confidence interval
-                xlab="Median annual water temperature, ?C", ylab="AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
-f1a
-
-f1b = ggscatter(mutSpecAllMean, x = "temperature", y = "A_G.N",
                 color = "#73514f", # Points color, shape and size
                 add = "reg.line",  # Add regressin line
                 add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
                 conf.int = TRUE, # Add confidence interval
-                xlab="Median annual water temperature, ?C", ylab="TH>CH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
-f1b
+                yscale = "log2", xlab="Median annual water temperature, ?C", ylab="AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1a
+
+f1b1 = ggscatter(mutSpecAllMean, x = "temperature", y = "G_A.N",
+                 color = "#055088", # Points color, shape and size
+                 add = "reg.line",  # Add regressin line
+                 add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+                 conf.int = TRUE, # Add confidence interval
+                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="CH>TH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1b1
+
+f1b2 = ggscatter(mutSpecAllMean, x = "temperature", y = "C_T.N",
+                 color = "#9c3d37", # Points color, shape and size
+                 add = "reg.line",  # Add regressin line
+                 add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+                 conf.int = TRUE, # Add confidence interval
+                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="GH>AH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1b2
+
+
 dev.off()
 
 
@@ -70,6 +80,9 @@ dev.off()
 mutSpecAllMean$TCdivAG=mutSpecAllMean$T_C.N/mutSpecAllMean$A_G.N
 mutSpecAllMean[mutSpecAllMean$TCdivAG == "Inf" | mutSpecAllMean$TCdivAG == "NaN",]$TCdivAG = NA
 cor.test(mutSpecAllMean$TCdivAG,mutSpecAllMean$temperature, method = 'spearman')
+mutSpecAllMean$GAdivCT=mutSpecAllMean$G_A.N/mutSpecAllMean$C_T.N
+mutSpecAllMean[mutSpecAllMean$GAdivCT == "Inf" | mutSpecAllMean$GAdivCT == "NaN" | is.na(mutSpecAllMean$GAdivCT),]$GAdivCT = NA
+cor.test(mutSpecAllMean$GAdivCT,mutSpecAllMean$temperature, method = 'spearman')
 
 
 
@@ -81,6 +94,15 @@ f1c = ggscatter(mutSpecAllMean, x = "temperature", y = "TCdivAG",
                 conf.int = TRUE, # Add confidence interval
                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 A_GdivT_C")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1c
+
+f1d = ggscatter(mutSpecAllMean, x = "temperature", y = "GAdivCT",
+                color = "#8C99A6", # Points color, shape and size
+                add = "reg.line",  # Add regressin line
+                add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+                conf.int = TRUE, # Add confidence interval
+                yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 C_TdivG_A")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1d
+
 dev.off()
 
 

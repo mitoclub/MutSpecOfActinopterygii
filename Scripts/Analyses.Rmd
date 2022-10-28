@@ -26,28 +26,25 @@ library(ggpubr)
 library(dplyr)
 ```
 
-#Reading MutSpec DataBase with temperature and mt of Actinopterigii 
+# Reading MutSpec DataBase with temperature and mt of Actinopterigii 
 
 ```{r}
 mutSpec = read.table('../Data/3results/VertebratePolymorphisms.MutSpecData.txt', header = TRUE)
 ```
 
-#Creating different subsets of mutspecs
+# Creating different subsets of mutspecs
 ```{r message=FALSE}
 mutSpecCytB = mutSpec[mutSpec$Gene == "CytB",]
 mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %>% summarise(A_C.N=mean(A_C.N), A_G.N=mean(A_G.N), A_T.N=mean(A_T.N), C_A.N=mean(C_A.N), C_G.N=mean(C_G.N), C_T.N=mean(C_T.N), G_A.N=mean(G_A.N), G_C.N=mean(G_C.N), G_T.N=mean(G_T.N), T_A.N=mean(T_A.N), T_C.N=mean(T_C.N), T_G.N=mean(T_G.N))
 table(mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]$Class)
 ```
 
-#Correlations of MutSpec with temperature
-##Correlations of MutSpec only CytB with temperature
+# Correlations of MutSpec with temperature
+## Correlations of MutSpec only CytB with temperature
 
 ```{r message=FALSE, warning=FALSE} 
 cor.test(mutSpecCytB$A_T.N,mutSpecCytB$temperature, method = 'spearman')   
-cor.test(mutSpecCytB$A_G.N,mutSpecCytB$temperature, method = 'spearman')      
-cor.test(mutSpecCytB$A_C.N,mutSpecCytB$temperature, method = 'spearman')      
 cor.test(mutSpecCytB$T_A.N,mutSpecCytB$temperature, method = 'spearman')   
-cor.test(mutSpecCytB$T_G.N,mutSpecCytB$temperature, method = 'spearman')   
 cor.test(mutSpecCytB$T_C.N,mutSpecCytB$temperature, method = 'spearman')       
 cor.test(mutSpecCytB$G_A.N,mutSpecCytB$temperature, method = 'spearman')    
 cor.test(mutSpecCytB$G_T.N,mutSpecCytB$temperature, method = 'spearman')    
@@ -57,7 +54,7 @@ cor.test(mutSpecCytB$C_T.N,mutSpecCytB$temperature, method = 'spearman')
 cor.test(mutSpecCytB$C_G.N,mutSpecCytB$temperature, method = 'spearman')    
 ```
 
-##Correlation of MutSpec allgenes by mean with temperature
+## Correlation of MutSpec allgenes by mean with temperature
 
 
 ```{r message=FALSE, warning=FALSE}  
@@ -74,35 +71,48 @@ cor.test(mutSpecAllMean$C_A.N,mutSpecAllMean$temperature, method = 'spearman')
 cor.test(mutSpecAllMean$C_T.N,mutSpecAllMean$temperature, method = 'spearman')     
 cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$temperature, method = 'spearman')   
 ```
-##Correlation of TCdivAG with temperature
+## Correlation of TCdivAG with temperature
 
 ```{r message=FALSE, warning=FALSE}
 mutSpecAllMean$TCdivAG=mutSpecAllMean$T_C.N/mutSpecAllMean$A_G.N
 mutSpecAllMean[mutSpecAllMean$TCdivAG == "Inf" | mutSpecAllMean$TCdivAG == "NaN",]$TCdivAG = NA
 cor.test(mutSpecAllMean$TCdivAG,mutSpecAllMean$temperature, method = 'spearman')
+mutSpecAllMean$GAdivCT=mutSpecAllMean$G_A.N/mutSpecAllMean$C_T.N
+mutSpecAllMean[mutSpecAllMean$GAdivCT == "Inf" | mutSpecAllMean$GAdivCT == "NaN" | is.na(mutSpecAllMean$GAdivCT),]$GAdivCT = NA
+cor.test(mutSpecAllMean$GAdivCT,mutSpecAllMean$temperature, method = 'spearman')
 ```
-##Figures
-###Figures for mutspec all genes mean
+## Figures
+### Figures for mutspec all genes mean
 
 ```{r message=FALSE, warning= FALSE}
 mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]; N = as.character(paste("N", nrow(mutSpecAllMean), sep="")) #delete NA
 f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "T_C.N",
-          color = "#036a5b", # Points color, shape and size
-          add = "reg.line",  # Add regressin line
-          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
-          conf.int = TRUE, # Add confidence interval
-          xlab="Median annual water temperature, ?C", ylab="AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
-f1a
-```
-
-```{r message=FALSE, warning= FALSE}
-f1b = ggscatter(mutSpecAllMean, x = "temperature", y = "A_G.N",
           color = "#73514f", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          xlab="Median annual water temperature, ?C", ylab="TH>CH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
-f1b
+          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1a
+```
+
+```{r message=FALSE, warning= FALSE}
+f1b1 = ggscatter(mutSpecAllMean, x = "temperature", y = "G_A.N",
+          color = "#055088", # Points color, shape and size
+          add = "reg.line",  # Add regressin line
+          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+          conf.int = TRUE, # Add confidence interval
+          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="CH>TH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1b1
+```   
+
+```{r message=FALSE, warning= FALSE}
+f1b2 = ggscatter(mutSpecAllMean, x = "temperature", y = "C_T.N",
+          color = "#9c3d37", # Points color, shape and size
+          add = "reg.line",  # Add regressin line
+          add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+          conf.int = TRUE, # Add confidence interval
+          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="GH>AH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1b2
 ```       
 
 ```{r message=FALSE, warning= FALSE}
@@ -114,8 +124,18 @@ f1c = ggscatter(mutSpecAllMean, x = "temperature", y = "TCdivAG",
           yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 A_GdivT_C")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1c
 ``` 
+```{r message=FALSE, warning= FALSE}
+f1d = ggscatter(mutSpecAllMean, x = "temperature", y = "GAdivCT",
+                color = "#8C99A6", # Points color, shape and size
+                add = "reg.line",  # Add regressin line
+                add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
+                conf.int = TRUE, # Add confidence interval
+                yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 C_TdivG_A")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+f1d
+``` 
 
-##correlation of mutspec with time of maturation in fishes
+
+## correlation of mutspec with time of maturation in fishes
 
 ```{r message=FALSE, warning=FALSE}  
 cor.test(mutSpecAllMean$A_T.N,mutSpecAllMean$matur_tm, method = 'spearman')   
@@ -131,18 +151,27 @@ cor.test(mutSpecAllMean$C_A.N,mutSpecAllMean$matur_tm, method = 'spearman')
 cor.test(mutSpecAllMean$C_T.N,mutSpecAllMean$matur_tm, method = 'spearman')     
 cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$matur_tm, method = 'spearman') 
 ```
-##LM
+## LM
 ```{r}
-summary(lm(formula = temperature ~ scale(T_C.N) + scale(A_G.N), data = mutSpecAllMean))
+summary(lm(formula = temperature ~ scale(T_C.N) + scale(G_A.N), data = mutSpecAllMean))
 summary(lm(formula = T_C.N ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
 summary(lm(formula = T_C.N ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
 summary(lm(formula = T_C.N ~ scale(temperature), data = mutSpecAllMean))
-summary(lm(formula = A_G.N ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
-summary(lm(formula = A_G.N ~ scale(temperature), data = mutSpecAllMean))
+summary(lm(formula = G_A.N ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = G_A.N ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = G_A.N ~ scale(temperature), data = mutSpecAllMean))
 
 mutSpecAllMeanNAzeroomit = mutSpecAllMean[!is.na(mutSpecAllMean$TCdivAG),]
 mutSpecAllMeanNAzeroomit = mutSpecAllMeanNAzeroomit[mutSpecAllMeanNAzeroomit$TCdivAG != 0,]
-summary(lm(formula = log2(TCdivAG) ~ scale(temperature), data = mutSpecAllMeanNAzeroomit))
-summary(lm(formula = temperature ~ scale(TCdivAG), data = mutSpecAllMeanNAzeroomit))
+mutSpecAllMeanNAzeroomit = mutSpecAllMean[!is.na(mutSpecAllMean$GAdivCT),]
+mutSpecAllMeanNAzeroomit = mutSpecAllMeanNAzeroomit[mutSpecAllMeanNAzeroomit$GAdivCT != 0,]
+
+summary(lm(formula = temperature ~ scale(T_C.N) + scale(G_A.N) + scale(TCdivAG) + scale(GAdivCT), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = TCdivAG ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = TCdivAG ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = GAdivCT ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = GAdivCT ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = TCdivAG ~ scale(temperature), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = GAdivCT ~ scale(temperature), data = mutSpecAllMeanNAzeroomit))
 
 ``` 
