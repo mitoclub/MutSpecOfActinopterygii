@@ -46,14 +46,14 @@ cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$temperature, method = 'spearman')
 
 ##Figures
 
-pdf('../Figures/VertebratePolymorphisms.MutSpecData.Actinopterygii.pdf')
+pdf('../Figures/PolymorphicData.Actinopterygii.pdf')
 mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]; N = as.character(paste("N", nrow(mutSpecAllMean), sep="")) #delete NA
 f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "T_C.N",
                 color = "#73514f", # Points color, shape and size
                 add = "reg.line",  # Add regressin line
                 add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
                 conf.int = TRUE, # Add confidence interval
-                yscale = "log2", xlab="Median annual water temperature, ?C", ylab="AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+                yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1a
 
 f1b1 = ggscatter(mutSpecAllMean, x = "temperature", y = "G_A.N",
@@ -61,7 +61,7 @@ f1b1 = ggscatter(mutSpecAllMean, x = "temperature", y = "G_A.N",
                  add = "reg.line",  # Add regressin line
                  add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
                  conf.int = TRUE, # Add confidence interval
-                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="CH>TH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 CH>TH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1b1
 
 f1b2 = ggscatter(mutSpecAllMean, x = "temperature", y = "C_T.N",
@@ -69,10 +69,8 @@ f1b2 = ggscatter(mutSpecAllMean, x = "temperature", y = "C_T.N",
                  add = "reg.line",  # Add regressin line
                  add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
                  conf.int = TRUE, # Add confidence interval
-                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="GH>AH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 GH>AH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1b2
-
-
 dev.off()
 
 
@@ -86,14 +84,14 @@ cor.test(mutSpecAllMean$GAdivCT,mutSpecAllMean$temperature, method = 'spearman')
 
 
 
-pdf('../Figures/VertebratePolymorphisms.MutSpecData.Actinopterygii.AGTC.pdf')
+pdf('../Figures/PolymorphicData.Actinopterygii.A_GdivT_C.pdf')
 f1c = ggscatter(mutSpecAllMean, x = "temperature", y = "TCdivAG",
                 color = "#814194", # Points color, shape and size
                 add = "reg.line",  # Add regressin line
                 add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
                 conf.int = TRUE, # Add confidence interval
                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 A_GdivT_C")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
-f1c
+f1c 
 
 f1d = ggscatter(mutSpecAllMean, x = "temperature", y = "GAdivCT",
                 color = "#8C99A6", # Points color, shape and size
@@ -102,7 +100,6 @@ f1d = ggscatter(mutSpecAllMean, x = "temperature", y = "GAdivCT",
                 conf.int = TRUE, # Add confidence interval
                 yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 C_TdivG_A")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1d
-
 dev.off()
 
 

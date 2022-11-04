@@ -91,7 +91,7 @@ f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "T_C.N",
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 AH>GH") + stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1a
 ```
 
@@ -101,7 +101,7 @@ f1b1 = ggscatter(mutSpecAllMean, x = "temperature", y = "G_A.N",
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="CH>TH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 CH>TH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1b1
 ```   
 
@@ -111,7 +111,7 @@ f1b2 = ggscatter(mutSpecAllMean, x = "temperature", y = "C_T.N",
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="GH>AH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          yscale = "log2", xlab="Median annual water temperature, ?C", ylab="log2 GH>AH")+ stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 f1b2
 ```       
 
