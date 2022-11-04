@@ -175,3 +175,21 @@ summary(lm(formula = TCdivAG ~ scale(temperature), data = mutSpecAllMeanNAzeroom
 summary(lm(formula = GAdivCT ~ scale(temperature), data = mutSpecAllMeanNAzeroomit))
 
 ``` 
+## PGLS
+```{r}
+tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
+
+row.names(mutSpecAllMeanNAzeroomit) = mutSpecAllMeanNAzeroomit$Species
+tree_pruned = treedata(tree, mutSpecAllMeanNAzeroomit, sort=T, warnings=T)$phy
+
+data<-as.data.frame(treedata(tree_pruned, mutSpecAllMeanNAzeroomit, sort=T, warnings=T)$data)
+data$Species = as.character(data$Species)
+data$TCdivAG = as.numeric(as.character(data$TCdivAG))
+data$temperature = as.numeric(as.character(data$temperature))
+data$matur_tm = as.numeric(as.character(data$matur_tm))
+data_comp <- comparative.data(tree_pruned, data, Species, vcv=TRUE)
+
+summary(pgls(TCdivAG ~ scale(temperature), data_comp, lambda="ML"))
+summary(pgls(log2(TCdivAG) ~ scale(temperature) + scale(matur_tm), data_comp, lambda="ML"))
+
+```
