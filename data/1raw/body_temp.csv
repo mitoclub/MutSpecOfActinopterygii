@@ -1,0 +1,108 @@
+Species;Body temperature;Weight;References
+Sphenisciformes
+Aptenodytes patagonica ;37.7;20;K-F*
+Aptenodytes jorsteri ;37.9;32;Prkvost and Sapin-Jaloustre, 1964
+Pygoscelis papua ;38.1;5;K-F
+Pygoscelis adeliae ;38.2;5.5;K-F PrCvost and Sapin-Jaloustre, 1964
+Megadyptes antipodes ;37.8;5.7;K-F
+Eudyptula minor ;39.0;765;White (see Wetmore, 1921)
+Struthioniformes
+Struthio camelus;38.7;113;Bligh and Hartley, 1965
+Casuariiformes
+Casuarius sp.;39.0;17.6;Sutherland, 1899 Benedict and Fox, 1927
+Dromiceius novae-hollandiae;39.0;43;Sutherland, 1899
+Apterygiformes
+Apteryx australis;39.0;2.2;K-F
+Tinamiformes
+Nothura maculosa;40.5;ca 200;Sutherland, 1899
+Podicepidiformes
+Podiceps caspicus;40.2;380;K-F
+Procellariiformes
+Diomedea exulans;39.6;8.2;K-F
+Diomedea nigripes;38.1;3.1;Howell and Bartholomew, 1961
+Diomedea immutabilis;37.5;2.5;Howell and Bartholomew, 1961
+Daption capensis;39.1;450;PrCvost, 1964
+Pachyptila turtur;39.9;470;K-F
+Puffinus teniurostris;40.9;550;K-F
+Pagodroma nivea;38.7;270;PrCvost, 1964
+Pelecaniformes
+Pelecanus occidentalis;40.3;3.5;K-F
+Morus bassanus;41.4;2.95;K-F
+Phakurocorax auritus;40.1;2.72;K-F
+Phalacrocorax carbo;39.8;3.63;K-F
+Ciconiiformes
+Ardea herodias;39.5;1.85;Benedict and Fox, 1927
+Jabiru mycteria;40.1;5.47;Benedict and Fox, 1927
+Leptoptilos javanicus;39.6;5.71;Benedict and Fox, 1927
+Phoenicopterus antiquorum;40.2;3.04;Benedict and Fox, 1927
+Anseriformes
+Cygnus buccinator;40.1;8.88;Benedict and Fox, 1927
+Bra&a canadensis;41.1;3.8;K-F
+Domestic Goose;41.0;5;K-F
+Anas platyrhynchos;41.2;1.22;K-F
+Anas cyanoptera;41.7;340;K-F
+Anas carolinesis;41.2;360;K-F
+Anas acuta;41.3;980;K-F
+Mareca Penelope;41.5;710;K-F
+Aythya affinis;41.3;850;K-F
+Domestic duck;42.1;1.87;K-F
+Falconiformes
+Geranotitus melanoleucus;40.3;2.86;Benedict and Fox, 1927
+GypaZtus barbatus;39.7;5.07;Benedict and Fox, 1927
+Falco sparvarim;40.5;100;K-F
+Galliformes
+Lagopus lagopus;41.7;620;K-F
+Lophorytr californicus;40.6;150;K-F
+Lophorytx gambelii;40.6;150;K-F
+Domestic turkey;41.2;3.7;K-F
+Domestic chicken;41.5;2;K-F
+Gruiformes
+Grus canadensis;40.8;3.89;Benedict and Fox, 1927;
+Tetrapteryx (= Anthropoides) paradisea;40.5;4.03;Benedict and Fox, 1927
+Charadriiformes
+Charadrius vociferus;41.7;76;K-F
+Limosa fedoa;40.7;250;K-F
+Catoptrophorus semipalmatus;41.4;222;K-F
+Limnodromus griseus;40.9;103;K-F
+Ereunetes mauri;41.8;24;K-F
+Lobipes lobatus;41.8;33;K-F
+Catharacta skua;41.2;1;K-F
+Laws glaucus;40.7;1.4;K-F
+Rissa tridactyla;41.5;460;K-F
+Cepphus grylle;40.4;500;K-F
+Columbiformes
+Domestic Pigeon;42.2;300;K-F
+Zenaidura macroura;42.5;123;K-F
+Strigiformes
+Bubo virginianus;40.8;1.45;K-F
+Apodiformes
+Eupetomena mucroura;40.6;7.0;Morrison, 1962
+Melanotrochilus fuscus;42.2;6.8;Morrison, 1962
+Colibri serrirostris;42.5;3.9;Morrison, 1962
+Lophornis magnificus;39.5;2.2;Morrison, 1962
+Chlorestes notatus;38.8;3.0;Morrison, 1962
+Hylocharis cyanus;38.8;3.0;Morrison, 1962
+Thalurania furcata;39.6;4.1;Morrison, 1962
+Polytmus guainumbi;41.0;5.3;Morrison, 1962
+Amazilia leucogaster;39.4;4.0;Morrison, 1962
+Aphantochroa cirrocholoris;44.6;6.9;Morrison, 1962
+Clytolaema rubricauda;42.2;6.8;Morrison, 1962
+Piciformes
+Dendrocopos pubescens;41.9;23;K-F
+Passeriformes
+Empidonax flaviventris.;42.3;14;K-F
+Eremophila alpestris;43;43;K-F
+Riparia riparia;41.4;14;K-F
+Parus carolinensis;42.3;9;K-F
+Parus cinctus;41.5;12.5;K-F
+Telmatodytes palustris;41.6;10.5;K-F
+Mimus polyglottos;42.7;40;K-F
+Turdus migratorius;43.2;77;K-F
+Passer domesticus;43.5;25;K-F
+Estrilda troglodytes;39.2;6.2;Cade et al., 1965
+Taeniopygia castanotis;40.2;11.7;Calder, 1964
+Richmondena cardinalis;42.1;40;K-F
+Pipilo fuscus;41.7;43;K-F
+Pipilo aberti;42.0;47;K-F
+Junco hyemalis;42.9;19;K-F
+Zonotrichia leucophrys;42.0;26;King, 1964
