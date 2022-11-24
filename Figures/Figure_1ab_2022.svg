@@ -84,11 +84,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.50828832"
-     inkscape:cx="89.516123"
-     inkscape:cy="446.59692"
+     inkscape:zoom="0.83214694"
+     inkscape:cx="313.04567"
+     inkscape:cy="415.79195"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g2437"
      inkscape:document-rotation="0"
      showgrid="false"
      showguides="true"
@@ -792,7 +792,8 @@
        id="g2347"
        transform="matrix(0.35277777,0,0,-0.35277777,-192.4472,162.21861)" />
     <g
-       id="g11290">
+       id="g11290"
+       transform="translate(0,1.0583333)">
       <g
          id="g4036"
          transform="translate(-3.1750001,2.1166667)">
@@ -1184,28 +1185,30 @@
        id="g2437"
        transform="matrix(0.35438035,0,0,-0.35438035,15.270516,148.0896)">
       <text
-         transform="matrix(1,0,0,-1,222.79,8.62)"
+         transform="scale(1,-1)"
          style="font-variant:normal;font-weight:normal;font-size:12px;font-family:Helvetica;-inkscape-font-specification:Helvetica;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-         id="text2441"><tspan
-           x="0 8.0039997 14.676 21.348 27.348 30.684 33.348 36.683998 43.355999 46.692001 49.355999 56.028 62.700001 66.036003 69.372002 75.372002 82.043999 88.716003"
-           y="0"
+         id="text2441"
+         x="222.78999"
+         y="-8.6199999"><tspan
            sodipodi:role="line"
-           id="tspan2439">Substitution types</tspan></text>
+           id="tspan2439"
+           y="-8.6199999"
+           x="222.78999 230.79398 237.46597 244.13799 250.13799 253.47398 256.138 259.474 266.146 269.48199 272.146 278.81799 285.49002 288.82602 292.16202 298.16202 304.83401">Substitution type</tspan></text>
     </g>
     <g
        id="g2443"
        transform="matrix(0.35277777,0,0,-0.35277777,-192.4472,162.21861)" />
     <g
        id="g2445"
-       transform="matrix(0.35438035,0,0,-0.35438035,32.522668,167.02667)">
+       transform="matrix(0.35438035,0,0,-0.35438035,34.110169,161.735)">
       <text
          transform="matrix(0,1,1,0,14.59,204.27)"
          style="font-variant:normal;font-weight:normal;font-size:12px;font-family:Helvetica;-inkscape-font-specification:Helvetica;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
          id="text2449"><tspan
-           x="0 8.6639996 15.336 19.632 29.628 36.299999 38.964001 41.627998 47.627998 54.299999 60.972 64.307999 67.643997 71.639999 78.311996 84.984001 91.655998 98.328003 105 111 113.664 120.336"
-           y="0"
            sodipodi:role="line"
-           id="tspan2447">Normalised frequencies</tspan></text>
+           id="tspan2447"
+           x="0"
+           y="0">Substitution rate</tspan></text>
     </g>
     <g
        id="g2451"
