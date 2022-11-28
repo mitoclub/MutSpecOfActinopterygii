@@ -1,0 +1,344 @@
+---
+title: "EquilibriumFishes"
+author: "Dmitrii Iliushchenko"
+date: "2022-11-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(caper)
+library(geiger)
+library(ggplot2)
+library(dplyr)
+```
+```{r echo=FALSE}
+rm(list=ls(all=TRUE))
+```
+
+
+### Reading whole genomes database 
+Deleting ND6
+```{r}
+SynNuc = read.table("../data/1raw/AllGenesCodonUsageNoOverlap.txt", header = TRUE, sep = '\t')
+SynNuc = SynNuc[SynNuc$Gene != 'ND6',]
+```
+### Obtaining neutral nucleotide fractions in whole genomes
+
+```{r}
+SynNuc = aggregate(list(SynNuc$NeutralA,SynNuc$NeutralT,SynNuc$NeutralG,SynNuc$NeutralC), by = list(SynNuc$Species), FUN = sum)
+names(SynNuc) = c('Species','NeutralA','NeutralT','NeutralG','NeutralC')
+SynNuc$FrA = SynNuc$NeutralA / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC)
+SynNuc$FrT = SynNuc$NeutralT / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC) 
+SynNuc$FrG = SynNuc$NeutralG / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC) 
+SynNuc$FrC = SynNuc$NeutralC / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC)
+SynNuc = SynNuc[,c(1,6,7,8,9)]
+```
+
+### Temperature for fishes
+
+```{r message=FALSE}
+muttemp = read.table('../data/3results/VertebratePolymorphisms.MutSpecData.txt', header =TRUE) 
+mutSpecAllMean = muttemp %>% group_by(Species, Class, temperature, matur_tm) %>% 
+            summarise(A_C.N=mean(A_C.N), A_G.N=mean(A_G.N),
+                      A_T.N=mean(A_T.N), C_A.N=mean(C_A.N), C_G.N=mean(C_G.N),
+                      C_T.N=mean(C_T.N), G_A.N=mean(G_A.N), G_C.N=mean(G_C.N), 
+                      G_T.N=mean(G_T.N), T_A.N=mean(T_A.N),
+                      T_C.N=mean(T_C.N), T_G.N=mean(T_G.N))
+```
+
+### Delete bad rows and take fishes that have codons and temperature
+
+```{r}
+mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]
+mutSpecAllMean = mutSpecAllMean[mutSpecAllMean$Class == 'Actinopterygii',]
+```
+
+### MErge with SynNuc
+
+```{r}
+nuc_and_temp = merge(mutSpecAllMean, SynNuc, by = 'Species')
+```
+
+### take 10% of cold and warm fishes 
+
+```{r}
+quant = quantile(nuc_and_temp$temperature, probs = c(0.1, 0.9))
+
+cold = nuc_and_temp[nuc_and_temp$temperature <= quant[[1]],]
+
+warm = nuc_and_temp[nuc_and_temp$temperature >= quant[[2]],]
+
+
+cold_fish = apply(as.matrix(cold[,5:16]), 2, mean)
+warm_fish = apply(as.matrix(warm[,5:16]), 2, mean)
+```
+
+### And also translate into heavy chain 
+
+```{r}
+names(cold_fish) = c('T_G','T_C','T_A','G_T','G_C','G_A','C_T','C_G','C_A','A_T','A_G','A_C')
+names(warm_fish) = c('T_G','T_C','T_A','G_T','G_C','G_A','C_T','C_G','C_A','A_T','A_G','A_C')
+```
+
+## Simmulation
+
+### INITIALIZE PARAMETERS:
+
+```{r}
+Final = data.frame()
+GenomeLength = 10000  
+SimulationLengthNumberOfGenerations = 600000
+```
+
+### Body of simmulation
+
+```{r}
+for (MutSpecProb in c('cold-water fish','warm-water fish'))
+{
+  ### choose initial nucleotide frequencies: equal to 25% if InitGenome == 1 or random if InitGenome > 1
+  for (InitGenome in 1:10)
+  {  #InitGenome = 2
+    if (InitGenome == 1) {frA = frG = frC = frT = 0.25} 
+    if (InitGenome >  1) 
+    {
+      frA = runif(1); frG = runif(1);
+      frC = runif(1); frT = runif(1);  
+      Summa = frA+frT+frG+frC
+      frA = frA/Summa; frG = frG/Summa; frC = frC/Summa; frT = frT/Summa; 
+      frA+frG+frC+frT # should be 1
+    }
+    
+    ### make a genome
+    genome = sample(c(rep('A',round(frA*GenomeLength)),rep('T',round(frT*GenomeLength)),rep('G',round(frG*GenomeLength)),rep('C',round(frC*GenomeLength))))
+    length(genome) # should be equal GenomeLength
+    
+    ##### B: DEFINE MUTATIONAL SPECTRUM
+    # Take MutSpec from the two values: cold_fish and worm_fish
+    
+    if (MutSpecProb == 'cold-water fish')
+    { #cold_fish
+      VecMutSpec = c(  
+      "T","A",cold_fish[['T_A']],
+      "T","C",cold_fish[['T_C']], 
+      "T","G",cold_fish[['T_G']],
+      "A","T",cold_fish[['A_T']],
+      "A","C",cold_fish[['A_C']],
+      "A","G",cold_fish[['A_G']], 
+      "C","T",cold_fish[['C_T']],
+      "C","A",cold_fish[['C_A']],
+      "C","G",cold_fish[['C_G']],
+      "G","T",cold_fish[['G_T']],
+      "G","A",cold_fish[['G_A']],
+      "G","C",cold_fish[['G_C']])} 
+    
+    if (MutSpecProb == 'warm-water fish')
+    { #warm_fish
+      VecMutSpec = c(  
+        "T","A",warm_fish[['T_A']],
+        "T","C",warm_fish[['T_C']], 
+        "T","G",warm_fish[['T_G']],
+        "A","T",warm_fish[['A_T']],
+        "A","C",warm_fish[['A_C']],
+        "A","G",warm_fish[['A_G']], 
+        "C","T",warm_fish[['C_T']],
+        "C","A",warm_fish[['C_A']],
+        "C","G",warm_fish[['C_G']],
+        "G","T",warm_fish[['G_T']],
+        "G","A",warm_fish[['G_A']],
+        "G","C",warm_fish[['G_C']])} 
+    
+    MutSpec = data.frame(matrix(VecMutSpec, ncol = 3, nrow = 12, byrow = TRUE))
+    names(MutSpec) = c('From','To','Prob')
+    MutSpec$Prob = as.numeric(as.character(MutSpec$Prob))
+    sum(MutSpec$Prob)
+    
+    ExpectedFrA = sum(MutSpec[MutSpec$To == 'A',]$Prob)/sum(MutSpec[MutSpec$From == 'A',]$Prob)
+    ExpectedFrT = sum(MutSpec[MutSpec$To == 'T',]$Prob)/sum(MutSpec[MutSpec$From == 'T',]$Prob)
+    ExpectedFrG = sum(MutSpec[MutSpec$To == 'G',]$Prob)/sum(MutSpec[MutSpec$From == 'G',]$Prob)
+    ExpectedFrC = sum(MutSpec[MutSpec$To == 'C',]$Prob)/sum(MutSpec[MutSpec$From == 'C',]$Prob)
+    Summa = ExpectedFrA + ExpectedFrT + ExpectedFrG + ExpectedFrC
+    ExpectedFrA = ExpectedFrA/Summa
+    ExpectedFrT = ExpectedFrT/Summa 
+    ExpectedFrG = ExpectedFrG/Summa
+    ExpectedFrC = ExpectedFrC/Summa
+    
+    # Check box
+    #MutSpecProb
+    #ExpectedFrA 
+    #ExpectedFrT 
+    #ExpectedFrG 
+    #ExpectedFrC 
+    #sum(MutSpec$Prob) 
+    
+    for (i in 1:nrow(MutSpec))
+    { # i = 1
+      if (i == 1) {MutSpec$RulletFrom[i] = 0}
+      MutSpec$RulletTo[i] = sum(MutSpec[seq(1:i),]$Prob)
+      if (i  > 1) {MutSpec$RulletFrom[i] = MutSpec$RulletTo[i-1]}
+    }
+    
+    ##### C: MUTATE AND SAVE NUCLEOTIDE CONTENT EVERY 1000 GENERATIONS
+    for (gener in 1:SimulationLengthNumberOfGenerations)
+    {
+      ### 3: choose a random position in a genome
+      RandomPos = sample(1:length(genome), 1)  
+      NucInRandomPos = genome[RandomPos];
+      
+      ### 2: choose a random mutation
+      Rullet = runif(1)
+      PotentialSubstitution = MutSpec[MutSpec$RulletFrom <= Rullet & MutSpec$RulletTo > Rullet,]
+      PotentialSubstitution$To = as.character(PotentialSubstitution$To)
+      ### 3: mutation happens
+      if (nrow(PotentialSubstitution) == 1)
+      {
+        if (NucInRandomPos == PotentialSubstitution$From)  {genome[RandomPos] = PotentialSubstitution$To}
+      }
+      
+      ### 4: print out every 1000 generations
+      if ((gener %% 1000) == 0)
+      {
+        Res = data.frame(table(genome))
+        Res = data.frame(t(Res[order(Res$genome),]))
+        Res = Res[2,]
+        Res$Gener = gener
+        Res$InitGenome = InitGenome
+        Res$MutSpecProb = MutSpecProb
+        names(Res)= c('A','C','G','T','Gener','InitGenome','MutSpecProb')
+        Final = rbind(Final,Res)
+      }
+    }}}
+```
+
+### Count FrX
+
+```{r}
+row.names(Final) = 1:nrow(Final)
+Final$FrA = as.numeric(as.character(Final$A))/length(genome)
+Final$FrT = as.numeric(as.character(Final$T))/length(genome)
+Final$FrG = as.numeric(as.character(Final$G))/length(genome)
+Final$FrC = as.numeric(as.character(Final$C))/length(genome)
+```
+
+## Block to draw simmulation pictures
+
+```{r}
+ColorA = rgb(1,0,0,0.3)
+ColorT = rgb(0,1,0,0.3)
+ColorG = rgb(0,0,1,0.3)
+ColorC = rgb(0,1,1,0.3)
+
+
+Final = Final[Final$Gener <= 600000,]
+###: PLOT
+
+pdf("../Figures/SimulationFishes.pdf",  width = 20, height = 10) # dev.off()
+par(mfrow=c(2,2))
+
+for (InitGenome in 1:10)
+{
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$FrA, ylim = c(0,0.6), pch = '.', col = ColorA, main = '', xlab = '', ylab = ''); par(new=TRUE)
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$FrT, ylim = c(0,0.6), pch = '.', col = ColorT, main = '', xlab = '', ylab = ''); par(new=TRUE)
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$FrG, ylim = c(0,0.6), pch = '.', col = ColorG, main = '', xlab = '', ylab = ''); par(new=TRUE)
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'cold-water fish',]$FrC, ylim = c(0,0.6), pch = '.', col = ColorC, main = 'Cold-water, neutral equilibrium, heavy chain', xlab = '', ylab = ''); par(new=TRUE)
+}
+
+A =  0.1645046270 ; G = 0.2378578262 
+T = 0.5271436896; C=0.07049385836 # data from Valerian
+
+abline(h = A, col = ColorA, lwd = 3, lt = 2)
+abline(h = T, col = ColorT, lwd = 3, lt = 2)
+abline(h = G, col = ColorG, lwd = 3, lt = 2)
+abline(h = C, col = ColorC, lwd = 3, lt = 2)
+
+legend(1,0.6, legend = c('A','T','G','C'), col = c(ColorA, ColorT, ColorG, ColorC), pch = 16)
+
+for (InitGenome in 1:10)
+{
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$FrA, ylim = c(0,0.6), pch = '.', col = ColorA, main = '', xlab = '', ylab = ''); par(new=TRUE)
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$FrT, ylim = c(0,0.6), pch = '.', col = ColorT, main = '', xlab = '', ylab = ''); par(new=TRUE)
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$FrG, ylim = c(0,0.6), pch = '.', col = ColorG, main = '', xlab = '', ylab = ''); par(new=TRUE)
+  plot(Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$Gener,Final[Final$InitGenome == InitGenome & Final$MutSpecProb == 'warm-water fish',]$FrC, ylim = c(0,0.6), pch = '.', col = ColorC, main = 'Warm-water, neutral equilibrium, heavy chain', xlab = '', ylab = ''); par(new=TRUE)
+}
+
+A = 0.1518187869; G=0.3236389788; 
+T = 0.4862288867; C = 0.03831334710 # data from Valerian:
+
+abline(h = A, col = ColorA, lwd = 3, lt = 2)
+abline(h = T, col = ColorT, lwd = 3, lt = 2)
+abline(h = G, col = ColorG, lwd = 3, lt = 2)
+abline(h = C, col = ColorC, lwd = 3, lt = 2)
+legend(1,0.6, legend = c('A','T','G','C'), col = c(ColorA, ColorT, ColorG, ColorC), pch = 16)
+
+dev.off()
+```
+
+## ExpectedbvsOberved analysys
+
+### take data from Valerian's diffur
+
+```{r}
+expected_cold = data.frame(0.1645046270, 0.2378578262, 0.5271436896, 0.07049385836)
+names(expected_cold) =c('FrA','FrG','FrT','FrC')
+
+expected_warm = data.frame(0.1518187869, 0.3236389788, 0.4862288867, 0.03831334710)
+names(expected_warm) =c('FrA','FrG','FrT','FrC')
+```
+
+### reverse to put in graph
+
+```{r}
+expected_all = cbind(expected_cold, expected_warm)
+expected_all = t(as.matrix(expected_all))
+```
+
+### Write types and colnames
+
+```{r}
+expected_all = cbind(expected_all,c('cold_fish','cold_fish','cold_fish','cold_fish','warm_fish','warm_fish','warm_fish','warm_fish'))
+expected_all = cbind(expected_all, c('FrA','FrG','FrT','FrC','FrA','FrG','FrT','FrC'))
+colnames(expected_all) = c('expected', 'type_of_fish','mutation')
+```
+
+
+### Observed mutations df
+
+```{r}
+cold_fish = (apply(as.matrix(cold[,17:20]), 2, mean))
+warm_fish = (apply(as.matrix(warm[,17:20]), 2, mean))
+
+observed = cbind(t(as.matrix(cold_fish)), t(as.matrix(warm_fish)))
+observed = t(as.matrix(observed))
+observed = cbind(observed, c('FrT', 'FrA', 'FrC', 'FrG', 'FrT', 'FrA', 'FrC', 'FrG')) ### CHANGE TO HEAVY CHAIN!!!
+observed = cbind(observed, c('cold_fish','cold_fish','cold_fish','cold_fish','warm_fish','warm_fish','warm_fish','warm_fish'))
+colnames(observed) = c('observed','mutation','type_of_fish')
+```
+
+### Merging to draw
+
+```{r}
+expectedvsoberved = merge(expected_all, observed, by = c('mutation','type_of_fish'))
+expectedvsoberved$observed =as.numeric(as.character(expectedvsoberved$observed))
+expectedvsoberved$expected =as.numeric(as.character(expectedvsoberved$expected))
+```
+
+### Draw figure 3
+```{r}
+pdf("../Figures/ExpectedvsObserved.pdf")
+
+exvsobs = ggplot(data = expectedvsoberved, aes(x = observed, y = expected, group=type_of_fish, col = type_of_fish))+
+  geom_point(size = 3.5)+
+  geom_abline(col = 'gray3', linetype="longdash", size = 0.6)+
+  theme_bw()+
+  scale_color_manual(name="Type of Fish", labels = c('Cold fish', 'Warm fish'), values = c('cold_fish'='deepskyblue4', 'warm_fish' = 'firebrick3'))+
+  geom_line(aes(group = mutation), col = 'black', size = 0.7)+
+  geom_text(aes(label=mutation),hjust=-0.40, vjust=-0.40)+
+  xlim(0, 0.55)+
+  ylim(0,0.55)+
+  labs(x = 'Observed Nucleotide Content',y = 'Expected Nucleotide Content')
+  
+
+print(exvsobs)
+
+dev.off()
+```
+
