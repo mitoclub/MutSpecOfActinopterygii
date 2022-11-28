@@ -51,7 +51,7 @@ matur = read.table('../Data/1raw/FishBaseMaturity_Tm.txt', header=T)
 matur = matur %>% group_by(Species) %>% summarise(matur_tm = median(Tm))
 AllSynNuc = merge(AllSynNuc, tm, by='Species', all.x=T)
 AllSynNuc = merge(AllSynNuc, matur, by='Species', all.x=T)
-nrow(AllSynNuc[!is.na(AllSynNuc$temperature),])
+nrow(AllSynNuc[!is.na(AllSynNuc$temperature) & !is.na(AllSynNuc$FrT),])
 ```
 
 # Correlations of neutral freqs with temperature
@@ -75,8 +75,10 @@ cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrC, method = "spearman")
 ```{r message=FALSE, warning=FALSE}
 AllSynNuc$TG = AllSynNuc$FrT+AllSynNuc$FrG
 AllSynNuc$AC = AllSynNuc$FrA+AllSynNuc$FrC
-AllSynNuc$TG_ACSkew = (AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); summary(AllSynNuc$TG_ACSkew)
-AllSynNuc$AC_TGSkew = -(AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); summary(AllSynNuc$AC_TGSkew) #OUR
+AllSynNuc$TG_ACSkew = (AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC);
+AllSynNuc$AC_TGSkew = -(AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); 
+nrow(AllSynNuc[!is.na(AllSynNuc$AC_TGSkew) & !is.na(AllSynNuc$temperature),])
+nrow(AllSynNuc[!is.na(AllSynNuc$AC_TGSkew) & !is.na(AllSynNuc$temperature) & !is.na(AllSynNuc$matur_tm),])
 ```
 
 # Figures
@@ -122,22 +124,15 @@ ggscatter(AllSynNuc, x = "temperature", y = "AC_TGSkew",
 
 # LM
 ```{r}
-summary(lm(FrT ~ scale(temperature)+scale(matur_tm), data = AllSynNuc))
-summary(lm(FrT ~ log2(temperature + 2)*log2(matur_tm), data = AllSynNuc))  # keep it for presentation!!!
-summary(lm(FrT ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
-summary(lm(FrG ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
-summary(lm(FrA ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
-
-summary(lm(AC_TGSkew ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
-summary(lm(AC_TGSkew ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))# ###PICS
 summary(lm(AC_TGSkew ~ temperature, data = AllSynNuc))
-
+summary(lm(AC_TGSkew ~ log2(temperature+2)+log2(matur_tm), data = AllSynNuc))
+summary(lm(AC_TGSkew ~ scale(temperature+2)+scale(matur_tm), data = AllSynNuc))
 ``` 
 
 # PGLS
 ```{r warning=FALSE}
 #tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
-tree = read.tree('../Data/1raw/Fishes_Polymorphic_sp.nwk')
+tree = read.tree('../Data/1raw/Fishes_WholeGenomes_sp.nwk')
 
 row.names(AllSynNuc) = AllSynNuc$Species
 tree_pruned = treedata(tree, AllSynNuc, sort=T, warnings=T)$phy
@@ -149,12 +144,9 @@ data$temperature = as.numeric(as.character(data$temperature))
 data$matur_tm = as.numeric(as.character(data$matur_tm))
 data_comp <- comparative.data(tree_pruned, data, Species, vcv=TRUE)
 
-summary(pgls(AC_TGSkew ~ log2(temperature+2), data_comp, lambda="ML"))
-summary(pgls(log2(temperature+2) ~ AC_TGSkew, data_comp, lambda="ML"))
-summary(pgls(AC_TGSkew ~ scale(temperature), data_comp, lambda="ML"))
-summary(pgls(AC_TGSkew ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
 summary(pgls(AC_TGSkew ~ temperature, data_comp, lambda="ML"))
-summary(pgls(AC_TGSkew ~ temperature + matur_tm, data_comp, lambda="ML"))
+summary(pgls(AC_TGSkew ~ scale(temperature), data_comp, lambda="ML"))
+summary(pgls(log2(AC_TGSkew) ~ log2(temperature+2)+log2(matur_tm), data_comp, lambda="ML"))
 ```
 
 #Figures

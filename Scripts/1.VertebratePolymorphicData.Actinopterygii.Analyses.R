@@ -12,16 +12,15 @@ library(dplyr)
 ##########Reading MutSpec DataBase with temp and mt of Actinopterigii 
 mutSpec = read.table('../Data/3results/VertebratePolymorphisms.MutSpecData.txt', header = TRUE)
 table(mutSpec$Class)
-
 mutSpecCytB = mutSpec[mutSpec$Gene == "CytB",]
 mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %>% summarise(A_C.N=mean(A_C.N), A_G.N=mean(A_G.N), A_T.N=mean(A_T.N), C_A.N=mean(C_A.N), C_G.N=mean(C_G.N), C_T.N=mean(C_T.N), G_A.N=mean(G_A.N), G_C.N=mean(G_C.N), G_T.N=mean(G_T.N), T_A.N=mean(T_A.N), T_C.N=mean(T_C.N), T_G.N=mean(T_G.N))
 table(mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]$Class)
+averageMutSpec = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),][,5:16]; summary(averageMutSpec)
+averageMutSpec = averageMutSpec[!is.na(averageMutSpec$G_A.N) & !is.na(averageMutSpec$G_C.N) & !is.na(averageMutSpec$G_T.N),]; summary(averageMutSpec); nrow(averageMutSpec)
+averageMutSpec = as.data.frame(apply(averageMutSpec, 2, mean)); averageMutSpec$Subs = row.names(averageMutSpec); names(averageMutSpec) = c("Freq", "Subs")
 
 # Average MutSpec for Actinopteri
 pdf('../Figures/PolymorphicData.Actinopterygii.AverageMutSpec.pdf')
-averageMutSpec = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),][,5:16]; summary(averageMutSpec)
-averageMutSpec = averageMutSpec[!is.na(averageMutSpec$G_A.N) & !is.na(averageMutSpec$G_C.N) & !is.na(averageMutSpec$G_T.N),]; summary(averageMutSpec)
-averageMutSpec = as.data.frame(apply(averageMutSpec, 2, mean)); averageMutSpec$Subs = row.names(averageMutSpec); names(averageMutSpec) = c("Freq", "Subs")
 f1 = ggbarplot(averageMutSpec, x = "Subs", y = "Freq", fill = "Subs", color = "Subs",
                palette = c("#bdbdbd", "#036a5b", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#9c3d37", "#055088", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#73514f", "#bdbdbd"), 
                xlab="Substitution types", ylab="Normalised frequencies", legend = "none")  
