@@ -1837,7 +1837,8 @@ ggscatter(AllSynNuc, x = &quot;temperature&quot;, y = &quot;FrT&quot;,
 </div>
 <div id="pgls" class="section level1" number="7">
 <h1><span class="header-section-number">7</span> PGLS</h1>
-<pre class="r"><code>tree = read.tree(&#39;../Data/1raw/mtalign.aln.treefile.rooted&#39;)
+<pre class="r"><code>#tree = read.tree(&#39;../Data/1raw/mtalign.aln.treefile.rooted&#39;)
+tree = read.tree(&#39;../Data/1raw/Fishes_Polymorphic_sp.nwk&#39;)
 
 row.names(AllSynNuc) = AllSynNuc$Species
 tree_pruned = treedata(tree, AllSynNuc, sort=T, warnings=T)$phy
@@ -1856,28 +1857,28 @@ summary(pgls(AC_TGSkew ~ log2(temperature+2), data_comp, lambda=&quot;ML&quot;))
 ##     lambda = &quot;ML&quot;)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.68745 -0.16662  0.00639  0.16655  0.60828 
+##       Min        1Q    Median        3Q       Max 
+## -0.013654 -0.003816  0.002458  0.006735  0.016733 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.990
-##    lower bound : 0.000, p = &lt; 2.22e-16
-##    upper bound : 1.000, p = 0.051052
-##    95.0% CI   : (0.965, NA)
+## lambda [ ML]  : 0.981
+##    lower bound : 0.000, p = 2.4577e-05
+##    upper bound : 1.000, p = 0.10342
+##    95.0% CI   : (0.860, NA)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
-##                        Estimate Std. Error t value  Pr(&gt;|t|)    
-## (Intercept)           0.3717986  0.0688253  5.4021 3.066e-07 ***
-## log2(temperature + 2) 0.0121235  0.0081732  1.4833    0.1404    
+##                       Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)           0.348134   0.099148  3.5113 0.0008618 ***
+## log2(temperature + 2) 0.029163   0.011228  2.5973 0.0118461 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.2435 on 129 degrees of freedom
-## Multiple R-squared: 0.01677, Adjusted R-squared: 0.009148 
-## F-statistic:   2.2 on 1 and 129 DF,  p-value: 0.1404</code></pre>
+## Residual standard error: 0.007724 on 59 degrees of freedom
+## Multiple R-squared: 0.1026,  Adjusted R-squared: 0.08739 
+## F-statistic: 6.746 on 1 and 59 DF,  p-value: 0.01185</code></pre>
 <pre class="r"><code>summary(pgls(log2(temperature+2) ~ AC_TGSkew, data_comp, lambda=&quot;ML&quot;))</code></pre>
 <pre><code>## 
 ## Call:
@@ -1885,28 +1886,28 @@ summary(pgls(AC_TGSkew ~ log2(temperature+2), data_comp, lambda=&quot;ML&quot;))
 ##     lambda = &quot;ML&quot;)
 ## 
 ## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -5.2033 -1.0455 -0.0367  1.0606  3.9696 
+##       Min        1Q    Median        3Q       Max 
+## -0.117003 -0.039664  0.004245  0.068214  0.144649 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.867
-##    lower bound : 0.000, p = 8.323e-10
-##    upper bound : 1.000, p = &lt; 2.22e-16
-##    95.0% CI   : (0.731, 0.940)
+## lambda [ ML]  : 0.910
+##    lower bound : 0.000, p = 0.032299
+##    upper bound : 1.000, p = 0.00021763
+##    95.0% CI   : (0.420, 0.983)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value  Pr(&gt;|t|)    
-## (Intercept)  3.06190    0.50529  6.0597 1.398e-08 ***
-## AC_TGSkew    2.28060    0.74592  3.0574  0.002715 ** 
+##             Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)  2.31644    0.96145  2.4093 0.019122 * 
+## AC_TGSkew    3.92200    1.26644  3.0969 0.002992 **
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 1.656 on 129 degrees of freedom
-## Multiple R-squared: 0.06757, Adjusted R-squared: 0.06034 
-## F-statistic: 9.348 on 1 and 129 DF,  p-value: 0.002715</code></pre>
+## Residual standard error: 0.06873 on 59 degrees of freedom
+## Multiple R-squared: 0.1398,  Adjusted R-squared: 0.1252 
+## F-statistic: 9.591 on 1 and 59 DF,  p-value: 0.002992</code></pre>
 <pre class="r"><code>summary(pgls(AC_TGSkew ~ scale(temperature), data_comp, lambda=&quot;ML&quot;))</code></pre>
 <pre><code>## 
 ## Call:
@@ -1914,28 +1915,28 @@ summary(pgls(AC_TGSkew ~ log2(temperature+2), data_comp, lambda=&quot;ML&quot;))
 ##     lambda = &quot;ML&quot;)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.68488 -0.15040  0.02731  0.17087  0.60117 
+##       Min        1Q    Median        3Q       Max 
+## -0.013054 -0.004850  0.001239  0.005585  0.024668 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.991
-##    lower bound : 0.000, p = &lt; 2.22e-16
-##    upper bound : 1.000, p = 0.045105
-##    95.0% CI   : (0.965, 1.000)
+## lambda [ ML]  : 0.982
+##    lower bound : 0.000, p = 8.581e-05
+##    upper bound : 1.000, p = 0.14849
+##    95.0% CI   : (0.828, NA)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
-##                     Estimate Std. Error t value  Pr(&gt;|t|)    
-## (Intercept)        0.4230073  0.0605215  6.9894 1.325e-10 ***
-## scale(temperature) 0.0099763  0.0059821  1.6677   0.09781 .  
+##                    Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)        0.462852   0.087960  5.2621 2.083e-06 ***
+## scale(temperature) 0.027599   0.010597  2.6046   0.01162 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.2432 on 129 degrees of freedom
-## Multiple R-squared: 0.0211,  Adjusted R-squared: 0.01352 
-## F-statistic: 2.781 on 1 and 129 DF,  p-value: 0.09781</code></pre>
+## Residual standard error: 0.00776 on 59 degrees of freedom
+## Multiple R-squared: 0.1031,  Adjusted R-squared: 0.08792 
+## F-statistic: 6.784 on 1 and 59 DF,  p-value: 0.01162</code></pre>
 <pre class="r"><code>summary(pgls(AC_TGSkew ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda=&quot;ML&quot;))</code></pre>
 <pre><code>## 
 ## Call:
@@ -1943,57 +1944,57 @@ summary(pgls(AC_TGSkew ~ log2(temperature+2), data_comp, lambda=&quot;ML&quot;))
 ##     data = data_comp, lambda = &quot;ML&quot;)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.62709 -0.13273  0.01202  0.14786  0.53835 
+##        Min         1Q     Median         3Q        Max 
+## -0.0137748 -0.0041362 -0.0003069  0.0035019  0.0209564 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.986
-##    lower bound : 0.000, p = &lt; 2.22e-16
-##    upper bound : 1.000, p = 0.020297
-##    95.0% CI   : (0.952, 0.999)
+## lambda [ ML]  : 0.956
+##    lower bound : 0.000, p = 1.5933e-05
+##    upper bound : 1.000, p = 0.0083978
+##    95.0% CI   : (0.766, 0.995)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
 ##                        Estimate Std. Error t value  Pr(&gt;|t|)    
-## (Intercept)           0.3198276  0.0710289  4.5028 1.491e-05 ***
-## log2(temperature + 2) 0.0184000  0.0085997  2.1396   0.03428 *  
-## log2(matur_tm)        0.0097012  0.0048475  2.0013   0.04748 *  
+## (Intercept)           0.2310036  0.0967845  2.3868 0.0202785 *  
+## log2(temperature + 2) 0.0449867  0.0117990  3.8127 0.0003352 ***
+## log2(matur_tm)        0.0259878  0.0098401  2.6410 0.0106046 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.2356 on 128 degrees of freedom
-## Multiple R-squared: 0.05007, Adjusted R-squared: 0.03522 
-## F-statistic: 3.373 on 2 and 128 DF,  p-value: 0.03736</code></pre>
+## Residual standard error: 0.006826 on 58 degrees of freedom
+## Multiple R-squared: 0.2172,  Adjusted R-squared: 0.1902 
+## F-statistic: 8.048 on 2 and 58 DF,  p-value: 0.000823</code></pre>
 <pre class="r"><code>summary(pgls(AC_TGSkew ~ temperature, data_comp, lambda=&quot;ML&quot;))</code></pre>
 <pre><code>## 
 ## Call:
 ## pgls(formula = AC_TGSkew ~ temperature, data = data_comp, lambda = &quot;ML&quot;)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.68488 -0.15040  0.02731  0.17087  0.60117 
+##       Min        1Q    Median        3Q       Max 
+## -0.013436 -0.005755  0.001239  0.005631  0.017686 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.991
-##    lower bound : 0.000, p = &lt; 2.22e-16
-##    upper bound : 1.000, p = 0.045105
-##    95.0% CI   : (0.965, 1.000)
+## lambda [ ML]  : 0.982
+##    lower bound : 0.000, p = 8.581e-05
+##    upper bound : 1.000, p = 0.14849
+##    95.0% CI   : (0.828, NA)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
-##               Estimate Std. Error t value  Pr(&gt;|t|)    
-## (Intercept) 0.40049676 0.06164998  6.4963 1.629e-09 ***
-## temperature 0.00130582 0.00078302  1.6677   0.09781 .  
+##              Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 0.4096861  0.0908652  4.5087 3.152e-05 ***
+## temperature 0.0034831  0.0013373  2.6046   0.01162 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.2432 on 129 degrees of freedom
-## Multiple R-squared: 0.0211,  Adjusted R-squared: 0.01352 
-## F-statistic: 2.781 on 1 and 129 DF,  p-value: 0.09781</code></pre>
+## Residual standard error: 0.00776 on 59 degrees of freedom
+## Multiple R-squared: 0.1031,  Adjusted R-squared: 0.08792 
+## F-statistic: 6.784 on 1 and 59 DF,  p-value: 0.01162</code></pre>
 <pre class="r"><code>summary(pgls(AC_TGSkew ~ temperature + matur_tm, data_comp, lambda=&quot;ML&quot;))</code></pre>
 <pre><code>## 
 ## Call:
@@ -2001,29 +2002,29 @@ summary(pgls(AC_TGSkew ~ log2(temperature+2), data_comp, lambda=&quot;ML&quot;))
 ##     lambda = &quot;ML&quot;)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.64970 -0.15241  0.01486  0.15636  0.57476 
+##       Min        1Q    Median        3Q       Max 
+## -0.015294 -0.005663 -0.001321  0.003785  0.019546 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.989
-##    lower bound : 0.000, p = &lt; 2.22e-16
-##    upper bound : 1.000, p = 0.036571
-##    95.0% CI   : (0.960, 1.000)
+## lambda [ ML]  : 0.961
+##    lower bound : 0.000, p = 0.00056483
+##    upper bound : 1.000, p = 0.043179
+##    95.0% CI   : (0.596, 1.000)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
-##               Estimate Std. Error t value  Pr(&gt;|t|)    
-## (Intercept) 0.38631681 0.06295462  6.1364 9.788e-09 ***
-## temperature 0.00159537 0.00083217  1.9171   0.05745 .  
-## matur_tm    0.00102367 0.00109428  0.9355   0.35131    
+##              Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 0.3441410  0.0884568  3.8905 0.0002604 ***
+## temperature 0.0050412  0.0014569  3.4603 0.0010188 ** 
+## matur_tm    0.0076289  0.0040546  1.8815 0.0649212 .  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.2416 on 128 degrees of freedom
-## Multiple R-squared: 0.02882, Adjusted R-squared: 0.01364 
-## F-statistic: 1.899 on 2 and 128 DF,  p-value: 0.1539</code></pre>
+## Residual standard error: 0.007092 on 58 degrees of freedom
+## Multiple R-squared: 0.1733,  Adjusted R-squared: 0.1448 
+## F-statistic: 6.078 on 2 and 58 DF,  p-value: 0.004014</code></pre>
 <p>#Figures</p>
 <pre class="r"><code>AllSynNuc = AllSynNuc[!is.na(AllSynNuc$matur_tm),]; N = as.character(paste(&quot;N&quot;, nrow(AllSynNuc), sep=&quot;&quot;))
 medianTm = median(AllSynNuc[!is.na(AllSynNuc$matur_tm),]$matur_tm)

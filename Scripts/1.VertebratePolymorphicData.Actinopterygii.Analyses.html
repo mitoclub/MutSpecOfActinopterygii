@@ -2292,6 +2292,19 @@ summary(lm(formula = temperature ~ scale(T_C.N) + scale(G_A.N) + scale(TCdivAG) 
 </div>
 <div id="pgls" class="section level2" number="4.7">
 <h2><span class="header-section-number">4.7</span> PGLS</h2>
+<pre class="r"><code>tree = read.tree(&#39;../Data/1raw/Fishes_Polymorphic_sp.nwk&#39;)
+
+row.names(mutSpecAllMeanNAzeroomit) = mutSpecAllMeanNAzeroomit$Species
+tree_pruned = treedata(tree, mutSpecAllMeanNAzeroomit, sort=T, warnings=T)$phy
+
+data&lt;-as.data.frame(treedata(tree_pruned, mutSpecAllMeanNAzeroomit, sort=T, warnings=T)$data)
+data$Species = as.character(data$Species)
+data$TCdivAG = as.numeric(as.character(data$TCdivAG))
+data$temperature = as.numeric(as.character(data$temperature))
+data$matur_tm = as.numeric(as.character(data$matur_tm))
+data_comp &lt;- comparative.data(tree_pruned, data, Species, vcv=TRUE)
+
+summary(pgls(TCdivAG ~ scale(temperature), data_comp, lambda=&quot;ML&quot;))</code></pre>
 <pre><code>## 
 ## Call:
 ## pgls(formula = TCdivAG ~ scale(temperature), data = data_comp, 
@@ -2299,55 +2312,56 @@ summary(lm(formula = temperature ~ scale(T_C.N) + scale(G_A.N) + scale(TCdivAG) 
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -25.8830  -3.5825  -0.0957   3.3801  15.2906 
+## -0.43943 -0.08663 -0.02576  0.08179  0.37610 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.735
-##    lower bound : 0.000, p = 0.01489
-##    upper bound : 1.000, p = 8.1897e-10
-##    95.0% CI   : (0.296, 0.896)
+## lambda [ ML]  : 0.000
+##    lower bound : 0.000, p = 1    
+##    upper bound : 1.000, p = 3.6205e-07
+##    95.0% CI   : (NA, 0.747)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
-##                    Estimate Std. Error t value Pr(&gt;|t|)   
-## (Intercept)         5.54208    1.72405  3.2146  0.00229 **
-## scale(temperature)  0.70290    0.45159  1.5565  0.12590   
+##                    Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)         3.22368    0.42101   7.657 1.298e-10 ***
+## scale(temperature)  0.96597    0.42423   2.277   0.02614 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 6.386 on 50 degrees of freedom
-## Multiple R-squared: 0.04621, Adjusted R-squared: 0.02714 
-## F-statistic: 2.423 on 1 and 50 DF,  p-value: 0.1259</code></pre>
+## Residual standard error: 0.1588 on 64 degrees of freedom
+## Multiple R-squared: 0.07494, Adjusted R-squared: 0.06049 
+## F-statistic: 5.185 on 1 and 64 DF,  p-value: 0.02614</code></pre>
+<pre class="r"><code>summary(pgls(log2(TCdivAG) ~ log2(temperature), data_comp, lambda=&quot;ML&quot;))</code></pre>
 <pre><code>## 
 ## Call:
 ## pgls(formula = log2(TCdivAG) ~ log2(temperature), data = data_comp, 
 ##     lambda = &quot;ML&quot;)
 ## 
 ## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -5.1976 -1.9965 -0.3248  1.0361  5.3878 
+##       Min        1Q    Median        3Q       Max 
+## -0.191114 -0.048463  0.002077  0.047955  0.159832 
 ## 
 ## Branch length transformations:
 ## 
 ## kappa  [Fix]  : 1.000
-## lambda [ ML]  : 0.476
-##    lower bound : 0.000, p = 0.37997
-##    upper bound : 1.000, p = 8.9928e-15
-##    95.0% CI   : (NA, 0.825)
+## lambda [ ML]  : 0.352
+##    lower bound : 0.000, p = 0.49017
+##    upper bound : 1.000, p = 1.9906e-13
+##    95.0% CI   : (NA, 0.747)
 ## delta  [Fix]  : 1.000
 ## 
 ## Coefficients:
-##                   Estimate Std. Error t value Pr(&gt;|t|)  
-## (Intercept)        0.12152    0.85967  0.1414  0.88816  
-## log2(temperature)  0.38176    0.17313  2.2050  0.03208 *
+##                   Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)       -0.64992    0.83034 -0.7827  0.43668   
+## log2(temperature)  0.50627    0.15240  3.3220  0.00148 **
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 2.354 on 50 degrees of freedom
-## Multiple R-squared: 0.08862, Adjusted R-squared: 0.0704 
-## F-statistic: 4.862 on 1 and 50 DF,  p-value: 0.03208</code></pre>
+## Residual standard error: 0.06827 on 64 degrees of freedom
+## Multiple R-squared: 0.1471,  Adjusted R-squared: 0.1337 
+## F-statistic: 11.04 on 1 and 64 DF,  p-value: 0.00148</code></pre>
 </div>
 </div>
 

@@ -136,7 +136,8 @@ summary(lm(AC_TGSkew ~ temperature, data = AllSynNuc))
 
 # PGLS
 ```{r warning=FALSE}
-tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
+#tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
+tree = read.tree('../Data/1raw/Fishes_Polymorphic_sp.nwk')
 
 row.names(AllSynNuc) = AllSynNuc$Species
 tree_pruned = treedata(tree, AllSynNuc, sort=T, warnings=T)$phy

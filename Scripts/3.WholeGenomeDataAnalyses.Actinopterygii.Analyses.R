@@ -96,7 +96,8 @@ getwd()
 
 
 ###################################################### phylogenetic inertia analysis
-tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
+#tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
+tree = read.tree('../Data/1raw/Fishes_Polymorphic_sp.nwk')
 
 row.names(AllSynNuc) = AllSynNuc$Species
 tree_pruned = treedata(tree, AllSynNuc, sort=T, warnings=T)$phy

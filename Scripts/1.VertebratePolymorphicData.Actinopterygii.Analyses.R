@@ -152,8 +152,8 @@ summary(lm(formula = temperature ~ scale(TCdivAG), data = mutSpecAllMeanNAzeroom
 ########################################################################################################
 ### PICs ###############################################################################################
 ########################################################################################################
-tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
-
+#tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
+tree = read.tree('../Data/1raw/Fishes_Polymorphic_sp.nwk')
 row.names(mutSpecAllMeanNAzeroomit) = mutSpecAllMeanNAzeroomit$Species
 tree_pruned = treedata(tree, mutSpecAllMeanNAzeroomit, sort=T, warnings=T)$phy
 

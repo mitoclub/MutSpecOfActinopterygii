@@ -19,13 +19,8 @@ BirbTemp$Class = "Aves"
 ALL = merge(mutSpec, AA, all = T)
 ALL = merge(ALL, BirbTemp, all = T)
 
-####U tests
-colder <- c("Actinopterygii", "Amphibia", "Reptilia")
-warmer <- c("Mammalia","Aves")
-wilcox.test(MUTFROMK[MUTFROMK$Class %in% colder,]$T_C, MUTFROMK[MUTFROMK$Class %in% warmer,]$T_C, paired=F) #p-value = 2.574e-13
-wilcox.test(MUTFROMK[MUTFROMK$Class %in% colder,]$A_G, MUTFROMK[MUTFROMK$Class %in% warmer,]$A_G, paired=F)  #p-value < 2.2e-16
-wilcox.test(MUTFROMK[MUTFROMK$Class %in% colder,]$TCdivAG, MUTFROMK[MUTFROMK$Class %in% warmer,]$TCdivAG, paired=F) #p-value < 2.2e-16
-wilcox.test(Alltemp[Alltemp$Class %in% colder,]$Temperature, Alltemp[Alltemp$Class %in% warmer,]$Temperature, paired=F) #p-value < 2.2e-16
+
+
 
 pdf('../Figures/PolymorphicData.Actinopterygii.AverageMutSpec.Violin.pdf', width = 10, height = 5.3)
 ggviolin(ALL, x = "Class", y = "temperature", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "Body temperature, ?C",
@@ -38,3 +33,8 @@ dev.off()
 table(ALL[!is.na(ALL$temperature),]$Class)
 table(ALLDIV[!is.na(ALLDIV$TCdivAG),]$Class)
 
+####U tests
+colder <- c("Actinopterygii", "Amphibia", "Reptilia")
+warmer <- c("Mammalia","Aves")
+wilcox.test(ALLDIV[ALLDIV$Class %in% colder,]$TCdivAG, ALLDIV[ALLDIV$Class %in% warmer,]$TCdivAG, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$temperature, ALL[ALL$Class %in% warmer,]$temperature, paired=F) 
