@@ -382,7 +382,23 @@ SynNuc = SynNuc[,c(1,6,7,8,9)]</code></pre>
 <div id="temperature-for-fishes" class="section level3">
 <h3>Temperature for fishes</h3>
 <pre class="r"><code>muttemp = read.table(&#39;../data/3results/VertebratePolymorphisms.MutSpecData.txt&#39;, header =TRUE) 
-mutSpecAllMean = muttemp %&gt;% group_by(Species, Class, temperature, matur_tm) %&gt;% 
+
+mutSpecAllMean = muttemp %&gt;% group_by(Species, Class, temperature, matur_tm, Gene) %&gt;% 
+  summarise(A_C.N = A_C / NumOfFourFoldMut,
+            A_G.N = A_G / NumOfFourFoldMut,
+            A_T.N = A_T / NumOfFourFoldMut,
+            C_A.N = C_A / NumOfFourFoldMut,
+            C_G.N = C_G / NumOfFourFoldMut,
+            C_T.N = C_T / NumOfFourFoldMut,
+            G_A.N = G_A / NumOfFourFoldMut,
+            G_C.N = G_C / NumOfFourFoldMut,
+            G_T.N = G_T / NumOfFourFoldMut,
+            T_A.N = T_A / NumOfFourFoldMut,
+            T_C.N = T_C / NumOfFourFoldMut,
+            T_G.N = T_G / NumOfFourFoldMut)
+
+
+mutSpecAllMean = mutSpecAllMean %&gt;% group_by(Species, Class, temperature, matur_tm) %&gt;% 
             summarise(A_C.N=mean(A_C.N), A_G.N=mean(A_G.N),
                       A_T.N=mean(A_T.N), C_A.N=mean(C_A.N), C_G.N=mean(C_G.N),
                       C_T.N=mean(C_T.N), G_A.N=mean(G_A.N), G_C.N=mean(G_C.N), 
@@ -393,10 +409,10 @@ mutSpecAllMean = muttemp %&gt;% group_by(Species, Class, temperature, matur_tm) 
 <h3>Delete bad rows and take fishes that have codons and
 temperature</h3>
 <pre class="r"><code>mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]
-mutSpecAllMean = mutSpecAllMean[mutSpecAllMean$Class == &#39;Actinopterygii&#39;,]</code></pre>
+mutSpecAllMean = mutSpecAllMean[!duplicated(mutSpecAllMean$Species),]</code></pre>
 </div>
 <div id="merge-with-synnuc" class="section level3">
-<h3>MErge with SynNuc</h3>
+<h3>Merge with SynNuc</h3>
 <pre class="r"><code>nuc_and_temp = merge(mutSpecAllMean, SynNuc, by = &#39;Species&#39;)</code></pre>
 </div>
 <div id="take-10-of-cold-and-warm-fishes" class="section level3">
@@ -437,7 +453,7 @@ SimulationLengthNumberOfGenerations = 600000</code></pre>
       frA = runif(1); frG = runif(1);
       frC = runif(1); frT = runif(1);  
       Summa = frA+frT+frG+frC
-      # frA = frA/Summa; frG = frG/Summa; frC = frC/Summa; frT = frT/Summa; 
+      frA = frA/Summa; frG = frG/Summa; frC = frC/Summa; frT = frT/Summa; 
       frA+frG+frC+frT # should be 1
     }
     
@@ -494,14 +510,9 @@ SimulationLengthNumberOfGenerations = 600000</code></pre>
     ExpectedFrT = ExpectedFrT/Summa 
     ExpectedFrG = ExpectedFrG/Summa
     ExpectedFrC = ExpectedFrC/Summa
+
     
-    # Check box
-    #MutSpecProb
-    #ExpectedFrA 
-    #ExpectedFrT 
-    #ExpectedFrG 
-    #ExpectedFrC 
-    #sum(MutSpec$Prob) 
+    sum(MutSpec$Prob) 
     
     for (i in 1:nrow(MutSpec))
     { # i = 1
@@ -654,10 +665,10 @@ exvsobs = ggplot(data = expectedvsoberved, aes(x = observed, y = expected, group
   geom_text(aes(label=mutation),hjust=-0.40, vjust=-0.40)+
   xlim(0, 0.55)+
   ylim(0,0.55)+
-  labs(x = &#39;Observed Nucleotide Content&#39;,y = &#39;Expected Nucleotide Content&#39;)
-  
-
-print(exvsobs)
+  labs(x = &#39;Observed Nucleotide Content&#39;,y = &#39;Expected Nucleotide Content&#39;)</code></pre>
+<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.</code></pre>
+<pre class="r"><code>print(exvsobs)
 
 dev.off()</code></pre>
 <pre><code>## quartz_off_screen 
