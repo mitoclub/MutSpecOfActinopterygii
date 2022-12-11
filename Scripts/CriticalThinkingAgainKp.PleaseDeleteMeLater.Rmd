@@ -57,9 +57,9 @@ mutSpec$TotalSubstRate.heavy = mutSpec$A_G.SubstRate.heavy + mutSpec$A_T.SubstRa
 + mutSpec$G_T.SubstRate.heavy + mutSpec$G_C.SubstRate.heavy + mutSpec$G_A.SubstRate.heavy
 + mutSpec$C_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$C_A.SubstRate.heavy
 
-mutSpec$TotalTs.SubstRate.heavy = mutSpec$A_G.SubstRate.heavy + mutSpec$G_A.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy +  mutSpec$T_C.SubstRate.heavy
+mutSpec$TotalTsSubstRate.heavy = mutSpec$A_G.SubstRate.heavy + mutSpec$G_A.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy +  mutSpec$T_C.SubstRate.heavy
 
-mutSpec$TotalTv.SubstRate.heavy = mutSpec$A_T.SubstRate.heavy + mutSpec$A_C.SubstRate.heavy + mutSpec$T_G.SubstRate.heavy + mutSpec$T_A.SubstRate.heavy + mutSpec$G_T.SubstRate.heavy + mutSpec$G_C.SubstRate.heavy + mutSpec$C_G.SubstRate.heavy + mutSpec$C_A.SubstRate.heavy
+mutSpec$TotalTvSubstRate.heavy = mutSpec$A_T.SubstRate.heavy + mutSpec$A_C.SubstRate.heavy + mutSpec$T_G.SubstRate.heavy + mutSpec$T_A.SubstRate.heavy + mutSpec$G_T.SubstRate.heavy + mutSpec$G_C.SubstRate.heavy + mutSpec$C_G.SubstRate.heavy + mutSpec$C_A.SubstRate.heavy
 
 ```
 ### 4: Check of the integral MutSpec, 
@@ -90,8 +90,8 @@ cor.test(mutSpec$C_T.SubstRate.heavy, mutSpec$temperature, method = 'spearman') 
 cor.test(mutSpec$T_C.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # nothing
 cor.test(mutSpec$G_A.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # a bit positive
 
-cor.test(mutSpec$TotalTs.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # a bit positive
-cor.test(mutSpec$TotalTv.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # about to be absent
+cor.test(mutSpec$TotalTsSubstRate.heavy, mutSpec$temperature, method = 'spearman') # a bit positive
+cor.test(mutSpec$TotalTvSubstRate.heavy, mutSpec$temperature, method = 'spearman') # about to be absent
 
 ### A>G as a function of temperature and total number of substitutions
 A<-lm(mutSpec$A_G.SubstRate.heavy ~ mutSpec$temperature + mutSpec$TotalSubstRate.heavy); summary(A)
@@ -103,15 +103,73 @@ B<-lm(mutSpec$C_T.SubstRate.heavy ~ mutSpec$temperature); summary(B)
 # B<-lm(mutSpec$C_T.SubstRate.heavy/mutSpec$TotalSubstRate.heavy ~ mutSpec$temperature); summary(B) # Inf sometimes...
 
 ### backward multiple model
-C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalSubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy + mutSpec$TotalTv.SubstRate.heavy); summary(C)
-C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy + mutSpec$TotalTv.SubstRate.heavy); summary(C)
-C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy); summary(C)
-C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalSubstRate.heavy + mutSpec$TotalTsSubstRate.heavy + mutSpec$TotalTvSubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalTsSubstRate.heavy + mutSpec$TotalTvSubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalTsSubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$TotalTsSubstRate.heavy); summary(C)
 C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy); summary(C)
 C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy/mutSpec$T_C.SubstRate.heavy); summary(C) ### DIGEST IT!!!!!!!!!!
 
-### prcomp!!! TO DO!
+### prcomp
+pdf('../Figures/CriticalThinkingAgainKp.PleaseDeleteMeLater.pdf')
 
+## VAR 1
+mutSpecForPca = mutSpec[grepl('\\.SubstRate.heavy',names(mutSpec))]
+Pca = prcomp(mutSpecForPca, scale = TRUE)
+#Pca = prcomp(mutSpecForPca, scale = FALSE)
+print(Pca)
+LinearCombinationForPC1 <- Pca$rotation[,1] # temperature?
+LinearCombinationForPC2 <- Pca$rotation[,2]
+LinearCombinationForPC3 <- Pca$rotation[,3] # temperature?
+summary(Pca)
+plot(Pca)
+biplot(Pca,col = c("white","black"))
+
+## VAR 2
+mutSpecForPca = mutSpec[grepl('\\.SubstRate.heavy',names(mutSpec))]
+mutSpecForPca = mutSpecForPca/mutSpec$TotalSubstRate.heavy
+mutSpecForPca = mutSpecForPca[!is.na(mutSpecForPca$C_T.SubstRate.heavy),]
+mutSpecForPca = mutSpecForPca[mutSpecForPca$C_T.SubstRate.heavy < Inf,]
+Pca = prcomp(mutSpecForPca, scale = TRUE)
+#Pca = prcomp(mutSpecForPca, scale = FALSE)
+print(Pca)
+LinearCombinationForPC1 <- Pca$rotation[,1] # temperature?
+LinearCombinationForPC2 <- Pca$rotation[,2]
+LinearCombinationForPC3 <- Pca$rotation[,3] # temperature?
+summary(Pca)
+plot(Pca)
+biplot(Pca,col = c("white","black"))
+
+## VAR 3
+mutSpecForPca = mutSpec[grepl('\\.SubstRate.heavy',names(mutSpec))]
+mutSpecForPca = mutSpecForPca/mutSpec$TotalSubstRate.heavy
+mutSpecForPca = mutSpecForPca[!is.na(mutSpecForPca$C_T.SubstRate.heavy),]
+mutSpecForPca = mutSpecForPca[mutSpecForPca$C_T.SubstRate.heavy < Inf,]
+#Pca = prcomp(mutSpecForPca, scale = TRUE)
+Pca = prcomp(mutSpecForPca, scale = FALSE)
+print(Pca)
+LinearCombinationForPC1 <- Pca$rotation[,1] # temperature?
+LinearCombinationForPC2 <- Pca$rotation[,2]
+LinearCombinationForPC3 <- Pca$rotation[,3] # temperature?
+summary(Pca)
+plot(Pca)
+biplot(Pca,col = c("white","black"))
+
+
+## VAR 4
+summary(mutSpec$NumOfFourFoldMut)
+mutSpecForPca = mutSpec[mutSpec$NumOfFourFoldMut >= 10,]
+mutSpecForPca = mutSpecForPca[grepl('\\.SubstRate.heavy',names(mutSpecForPca))]
+Pca = prcomp(mutSpecForPca, scale = TRUE)
+print(Pca)
+LinearCombinationForPC1 <- Pca$rotation[,1] # temperature?
+LinearCombinationForPC2 <- Pca$rotation[,2]
+LinearCombinationForPC3 <- Pca$rotation[,3] # temperature?
+summary(Pca)
+plot(Pca)
+biplot(Pca,col = c("white","black"))
+
+dev.off()
 
 ```
 
