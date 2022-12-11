@@ -1,0 +1,117 @@
+---
+title: "CriticalThinkingAgainKp.PleaseDeleteMeLater.Rmd"
+author: "Konstantin Popadin"
+date: "11 Dec 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(caper)
+library(geiger)
+library(ggplot2)
+library(dplyr)
+```
+```{r echo=FALSE}
+rm(list=ls(all=TRUE))
+```
+### 1: Reading MutSpec and extraction of Cold and Warm MutSpecs of Actinopterygii for CytB with known temperature. How I would start simulations
+```{r}
+
+mutSpec = read.table('../Data/3results/VertebratePolymorphisms.MutSpecData.txt', header = TRUE)
+mutSpec = mutSpec[mutSpec$Class == 'Actinopterygii',]
+mutSpec = mutSpec[mutSpec$Gene == 'CytB',]
+summary(mutSpec$temperature)
+mutSpec = mutSpec[!is.na(mutSpec$temperature),]
+nrow(mutSpec)
+
+```
+### 2: Substitution rates positively correlate with the number of sequences. It is not good. Number of Sequences should not.
+```{r}
+cor.test(mutSpec$T_C.N,mutSpec$NumOfFourFoldMut, method = 'spearman') # Ah>Gh
+cor.test(mutSpec$T_C.N,mutSpec$NumberOfSeq, method = 'spearman')      # Ah>Gh
+
+A<-lm(mutSpec$T_C.N ~ scale(mutSpec$temperature) + scale(mutSpec$NumOfFourFoldMut))
+summary(A)
+B<-lm(mutSpec$T_C.N ~ scale(mutSpec$temperature) + scale(mutSpec$NumberOfSeq))
+summary(B)
+
+```
+### 3: Rederive the MutSpec: 
+### => Different normalisation: divide by the number of neutral nucletodes in the concatenate of all external sequences;
+### => Heavy chain notation.
+```{r}
+mutSpec$A_G.SubstRate.heavy = mutSpec$T_C/mutSpec$T
+mutSpec$A_T.SubstRate.heavy = mutSpec$T_A/mutSpec$T
+mutSpec$A_C.SubstRate.heavy = mutSpec$T_G/mutSpec$T
+mutSpec$T_G.SubstRate.heavy = mutSpec$A_C/mutSpec$A
+mutSpec$T_A.SubstRate.heavy = mutSpec$A_T/mutSpec$A
+mutSpec$T_C.SubstRate.heavy = mutSpec$A_G/mutSpec$A
+mutSpec$G_T.SubstRate.heavy = mutSpec$C_A/mutSpec$C
+mutSpec$G_C.SubstRate.heavy = mutSpec$C_G/mutSpec$C
+mutSpec$G_A.SubstRate.heavy = mutSpec$C_T/mutSpec$C
+mutSpec$C_G.SubstRate.heavy = mutSpec$G_C/mutSpec$G
+mutSpec$C_T.SubstRate.heavy = mutSpec$G_A/mutSpec$G
+mutSpec$C_A.SubstRate.heavy = mutSpec$G_T/mutSpec$G
+mutSpec$TotalSubstRate.heavy = mutSpec$A_G.SubstRate.heavy + mutSpec$A_T.SubstRate.heavy + mutSpec$A_C.SubstRate.heavy
++ mutSpec$T_G.SubstRate.heavy + mutSpec$T_A.SubstRate.heavy + mutSpec$T_C.SubstRate.heavy
++ mutSpec$G_T.SubstRate.heavy + mutSpec$G_C.SubstRate.heavy + mutSpec$G_A.SubstRate.heavy
++ mutSpec$C_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$C_A.SubstRate.heavy
+
+mutSpec$TotalTs.SubstRate.heavy = mutSpec$A_G.SubstRate.heavy + mutSpec$G_A.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy +  mutSpec$T_C.SubstRate.heavy
+
+mutSpec$TotalTv.SubstRate.heavy = mutSpec$A_T.SubstRate.heavy + mutSpec$A_C.SubstRate.heavy + mutSpec$T_G.SubstRate.heavy + mutSpec$T_A.SubstRate.heavy + mutSpec$G_T.SubstRate.heavy + mutSpec$G_C.SubstRate.heavy + mutSpec$C_G.SubstRate.heavy + mutSpec$C_A.SubstRate.heavy
+
+```
+### 4: Check of the integral MutSpec, 
+### Substitution rates do not correlate anymore with the number of sequences (it is good - more correct normalization);
+### Substitution rates correlate with the number of 4F mutations. Expectedly!?
+### Substitution rates correlate with temperature (even the total substitution rate) - higher global mut rate and within this trend A>G is the strongest!?
+```{r}
+## integral MutSpec looks good:
+barplot(c(mean(mutSpec$A_G.SubstRate.heavy),mean(mutSpec$A_T.SubstRate.heavy),mean(mutSpec$A_C.SubstRate.heavy),
+mean(mutSpec$T_G.SubstRate.heavy),mean(mutSpec$T_A.SubstRate.heavy),mean(mutSpec$T_C.SubstRate.heavy),
+mean(mutSpec$G_T.SubstRate.heavy),mean(mutSpec$G_C.SubstRate.heavy),mean(mutSpec$G_A.SubstRate.heavy),
+mean(mutSpec$C_G.SubstRate.heavy),mean(mutSpec$C_T.SubstRate.heavy),mean(mutSpec$C_A.SubstRate.heavy)), names = c('Ah>Gh','Ah>Th','Ah>Ch','Th>Gh','Th>Ah','Th>Ch','Gh>Th','Gh>Ch','Gh>Ah','Ch>Gh','Ch>Th','Ch>Ah'), cex.names = 0.65)
+
+## if there is a correlation of substitution rates with the number of sequences? No, because normalization is OK now
+cor.test(mutSpec$TotalSubstRate.heavy, mutSpec$NumberOfSeq, method = 'spearman') # no
+cor.test(mutSpec$A_G.SubstRate.heavy, mutSpec$NumberOfSeq, method = 'spearman') # no
+cor.test(mutSpec$C_T.SubstRate.heavy, mutSpec$NumberOfSeq, method = 'spearman') # no
+
+## if there is a correlation between the  substitution rates and NumberOfFourFoldMut? Yes, sure
+cor.test(mutSpec$TotalSubstRate.heavy, mutSpec$NumOfFourFoldMut, method = 'spearman') # very positive
+cor.test(mutSpec$A_G.SubstRate.heavy, mutSpec$NumOfFourFoldMut, method = 'spearman') # very positive
+cor.test(mutSpec$C_T.SubstRate.heavy, mutSpec$NumOfFourFoldMut, method = 'spearman') # very positive
+
+## total substitution rate - if there is correlation with temperature? yes. Warm water mutate faster in general and Ah>Gh is the best among them!?
+cor.test(mutSpec$TotalSubstRate.heavy, mutSpec$temperature, method = 'spearman') # a bit positive
+cor.test(mutSpec$A_G.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # positive
+cor.test(mutSpec$C_T.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # a bit positive
+cor.test(mutSpec$T_C.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # nothing
+cor.test(mutSpec$G_A.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # a bit positive
+
+cor.test(mutSpec$TotalTs.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # a bit positive
+cor.test(mutSpec$TotalTv.SubstRate.heavy, mutSpec$temperature, method = 'spearman') # about to be absent
+
+### A>G as a function of temperature and total number of substitutions
+A<-lm(mutSpec$A_G.SubstRate.heavy ~ mutSpec$temperature + mutSpec$TotalSubstRate.heavy); summary(A)
+A<-lm(mutSpec$A_G.SubstRate.heavy ~ mutSpec$temperature); summary(A)
+A<-lm(mutSpec$A_G.SubstRate.heavy/mutSpec$TotalSubstRate.heavy ~ mutSpec$temperature); summary(A)
+
+B<-lm(mutSpec$C_T.SubstRate.heavy ~ mutSpec$temperature + mutSpec$TotalSubstRate.heavy); summary(B)
+B<-lm(mutSpec$C_T.SubstRate.heavy ~ mutSpec$temperature); summary(B)
+# B<-lm(mutSpec$C_T.SubstRate.heavy/mutSpec$TotalSubstRate.heavy ~ mutSpec$temperature); summary(B) # Inf sometimes...
+
+### backward multiple model
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalSubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy + mutSpec$TotalTv.SubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy + mutSpec$TotalTv.SubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$C_T.SubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy + mutSpec$TotalTs.SubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy); summary(C)
+C<-lm(mutSpec$temperature ~ mutSpec$A_G.SubstRate.heavy/mutSpec$T_C.SubstRate.heavy); summary(C) ### DIGEST IT!!!!!!!!!!
+
+### prcomp!!! TO DO!
+
+
+```
+
