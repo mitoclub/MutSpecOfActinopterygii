@@ -15,43 +15,24 @@ library(dplyr)
 rm(list=ls(all=TRUE))
 ```
 
-
-### Reading whole genomes database 
-Deleting ND6
-```{r}
-SynNuc = read.table("../data/1raw/AllGenesCodonUsageNoOverlap.txt", header = TRUE, sep = '\t')
-SynNuc = SynNuc[SynNuc$Gene != 'ND6',]
-```
-### Obtaining neutral nucleotide fractions in whole genomes
-
-```{r}
-SynNuc = aggregate(list(SynNuc$NeutralA,SynNuc$NeutralT,SynNuc$NeutralG,SynNuc$NeutralC), by = list(SynNuc$Species), FUN = sum)
-names(SynNuc) = c('Species','NeutralA','NeutralT','NeutralG','NeutralC')
-SynNuc$FrA = SynNuc$NeutralA / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC)
-SynNuc$FrT = SynNuc$NeutralT / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC) 
-SynNuc$FrG = SynNuc$NeutralG / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC) 
-SynNuc$FrC = SynNuc$NeutralC / (SynNuc$NeutralA + SynNuc$NeutralT + SynNuc$NeutralG + SynNuc$NeutralC)
-SynNuc = SynNuc[,c(1,6,7,8,9)]
-```
-
-### Temperature for fishes
+### Reading temperature for fishes and mutspec
 
 ```{r message=FALSE}
 muttemp = read.table('../data/3results/VertebratePolymorphisms.MutSpecData.txt', header =TRUE) 
 
 mutSpecAllMean = muttemp %>% group_by(Species, Class, temperature, matur_tm, Gene) %>% 
-  summarise(A_C.N = A_C / NumOfFourFoldMut,
-            A_G.N = A_G / NumOfFourFoldMut,
-            A_T.N = A_T / NumOfFourFoldMut,
-            C_A.N = C_A / NumOfFourFoldMut,
-            C_G.N = C_G / NumOfFourFoldMut,
-            C_T.N = C_T / NumOfFourFoldMut,
-            G_A.N = G_A / NumOfFourFoldMut,
-            G_C.N = G_C / NumOfFourFoldMut,
-            G_T.N = G_T / NumOfFourFoldMut,
-            T_A.N = T_A / NumOfFourFoldMut,
-            T_C.N = T_C / NumOfFourFoldMut,
-            T_G.N = T_G / NumOfFourFoldMut)
+  summarise(A_C.N = T_G / NumOfFourFoldMut,
+            A_G.N = T_C / NumOfFourFoldMut,
+            A_T.N = T_A / NumOfFourFoldMut,
+            C_A.N = G_T / NumOfFourFoldMut,
+            C_G.N = G_C / NumOfFourFoldMut,
+            C_T.N = G_A / NumOfFourFoldMut,
+            G_A.N = C_T / NumOfFourFoldMut,
+            G_C.N = C_G / NumOfFourFoldMut,
+            G_T.N = C_A / NumOfFourFoldMut,
+            T_A.N = A_T / NumOfFourFoldMut,
+            T_C.N = A_G / NumOfFourFoldMut,
+            T_G.N = A_C / NumOfFourFoldMut)
 
 
 mutSpecAllMean = mutSpecAllMean %>% group_by(Species, Class, temperature, matur_tm) %>% 
@@ -60,6 +41,16 @@ mutSpecAllMean = mutSpecAllMean %>% group_by(Species, Class, temperature, matur_
                       C_T.N=mean(C_T.N), G_A.N=mean(G_A.N), G_C.N=mean(G_C.N), 
                       G_T.N=mean(G_T.N), T_A.N=mean(T_A.N),
                       T_C.N=mean(T_C.N), T_G.N=mean(T_G.N))
+
+frX_data = aggregate(list(muttemp$A,muttemp$T,muttemp$G,muttemp$C), by = list(muttemp$Species), FUN = sum)
+names(frX_data) = c('Species','T','A','C','G') # heavy chain tr
+
+frX_data$FrA = frX_data$A / (frX_data$A + frX_data$T + frX_data$G + frX_data$C)
+frX_data$FrT = frX_data$T / (frX_data$A + frX_data$T + frX_data$G + frX_data$C) 
+frX_data$FrG = frX_data$G / (frX_data$A + frX_data$T + frX_data$G + frX_data$C) 
+frX_data$FrC = frX_data$C / (frX_data$A + frX_data$T + frX_data$G + frX_data$C)
+
+mutSpecAllMean = merge(mutSpecAllMean, frX_data, by = 'Species')
 ```
 
 ### Delete bad rows and take fishes that have codons and temperature
@@ -69,31 +60,25 @@ mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]
 mutSpecAllMean = mutSpecAllMean[!duplicated(mutSpecAllMean$Species),]
 ```
 
-### Merge with SynNuc
-
-```{r}
-nuc_and_temp = merge(mutSpecAllMean, SynNuc, by = 'Species')
-```
-
 ### take 10% of cold and warm fishes 
 
 ```{r}
-quant = quantile(nuc_and_temp$temperature, probs = c(0.1, 0.9))
+quant = quantile(mutSpecAllMean$temperature, probs = c(0.1, 0.9))
 
-cold = nuc_and_temp[nuc_and_temp$temperature <= quant[[1]],]
+cold = mutSpecAllMean[mutSpecAllMean$temperature <= quant[[1]],]
 
-warm = nuc_and_temp[nuc_and_temp$temperature >= quant[[2]],]
+warm = mutSpecAllMean[mutSpecAllMean$temperature >= quant[[2]],]
 
 
 cold_fish = apply(as.matrix(cold[,5:16]), 2, mean)
 warm_fish = apply(as.matrix(warm[,5:16]), 2, mean)
 ```
 
-### And also translate into heavy chain 
+### Change to better names
 
 ```{r}
-names(cold_fish) = c('T_G','T_C','T_A','G_T','G_C','G_A','C_T','C_G','C_A','A_T','A_G','A_C')
-names(warm_fish) = c('T_G','T_C','T_A','G_T','G_C','G_A','C_T','C_G','C_A','A_T','A_G','A_C')
+names(cold_fish) = c('A_C','A_G','A_T','C_A','C_G','C_T','G_A','G_C','G_T','T_A','T_C','T_G')
+names(warm_fish) = c('A_C','A_G','A_T','C_A','C_G','C_T','G_A','G_C','G_T','T_A','T_C','T_G')
 ```
 
 ## Simmulation
@@ -314,12 +299,12 @@ colnames(expected_all) = c('expected', 'type_of_fish','mutation')
 ### Observed mutations df
 
 ```{r}
-cold_fish = (apply(as.matrix(cold[,17:20]), 2, mean))
-warm_fish = (apply(as.matrix(warm[,17:20]), 2, mean))
+cold_fish = (apply(as.matrix(cold[,21:24]), 2, mean))
+warm_fish = (apply(as.matrix(warm[,21:24]), 2, mean))
 
 observed = cbind(t(as.matrix(cold_fish)), t(as.matrix(warm_fish)))
 observed = t(as.matrix(observed))
-observed = cbind(observed, c('FrT', 'FrA', 'FrC', 'FrG', 'FrT', 'FrA', 'FrC', 'FrG')) ### CHANGE TO HEAVY CHAIN!!!
+observed = cbind(observed, c('FrA', 'FrT', 'FrG', 'FrC', 'FrA', 'FrT', 'FrG', 'FrC')) 
 observed = cbind(observed, c('cold_fish','cold_fish','cold_fish','cold_fish','warm_fish','warm_fish','warm_fish','warm_fish'))
 colnames(observed) = c('observed','mutation','type_of_fish')
 ```
