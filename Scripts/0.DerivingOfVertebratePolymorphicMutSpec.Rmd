@@ -3,7 +3,7 @@ title: "Derive Mutational spectrum"
 author: "Dmitrii Iliushchenko"
 date: "15/9/2022"
 output:
-    html_document:
+      html_document:
       toc: true
       toc_depth: 3
       toc_float: true
@@ -40,13 +40,14 @@ VecOfSynFourFoldDegenerateSites <- c('CTT', 'CTC', 'CTA', 'CTG',
 
 ### Unzip (optionaly) files and get list of them
 ```{r}
-#unzip("../Data/1raw/POLARIZEDBR_DATA.zip")
+unzip("../Data/1raw/POLARIZEDBR_DATA.zip")
 List = list.files("../Data/1raw/POLARIZEDBR_DATA/")
 ```
 
 ## Parse into one df and count neutral ATGC
 ```{r}
-for (i in 1:length(List)){
+for (i in 1:length(List))
+  {
   infile = paste("../Data/1raw/POLARIZEDBR_DATA/",as.character(List[i]),sep='') 
   if (length(grep('POLARISED',infile)) > 0)
   {
@@ -85,7 +86,11 @@ for (i in 1:length(List)){
     }
   }
 }
-Final = as.data.frame(Final); names(Final)=c('Species','Gene','A','T','G','C','NumberOfAllCodons',"NumberOfFourFoldDegenCodons",'NumberOfSeq')
+```
+
+```{r}
+Final = as.data.frame(Final); 
+names(Final)=c('Species','Gene','A','T','G','C','NumberOfAllCodons',"NumberOfFourFoldDegenCodons",'NumberOfSeq')
 ```
 
 
@@ -221,18 +226,18 @@ MUT4fold$FrC = MUT4fold$C / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
 
 ### Normalization
 ```{r}
-MUT4fold$A_C.N = MUT4fold$A_C / (MUT4fold$FrA * 100)
-MUT4fold$A_G.N = MUT4fold$A_G / (MUT4fold$FrA * 100)
-MUT4fold$A_T.N = MUT4fold$A_T / (MUT4fold$FrA * 100)
-MUT4fold$C_A.N = MUT4fold$C_A / (MUT4fold$FrC * 100)
-MUT4fold$C_G.N = MUT4fold$C_G / (MUT4fold$FrC * 100)
-MUT4fold$C_T.N = MUT4fold$C_T / (MUT4fold$FrC * 100)
-MUT4fold$G_A.N = MUT4fold$G_A / (MUT4fold$FrG * 100)
-MUT4fold$G_C.N = MUT4fold$G_C / (MUT4fold$FrG * 100)
-MUT4fold$G_T.N = MUT4fold$G_T / (MUT4fold$FrG * 100)
-MUT4fold$T_A.N = MUT4fold$T_A / (MUT4fold$FrT * 100)
-MUT4fold$T_C.N = MUT4fold$T_C / (MUT4fold$FrT * 100)
-MUT4fold$T_G.N = MUT4fold$T_G / (MUT4fold$FrT * 100)
+MUT4fold$A_G.SubstRate.heavy = MUT4fold$T_C/MUT4fold$T
+MUT4fold$A_T.SubstRate.heavy = MUT4fold$T_A/MUT4fold$T
+MUT4fold$A_C.SubstRate.heavy = MUT4fold$T_G/MUT4fold$T
+MUT4fold$T_G.SubstRate.heavy = MUT4fold$A_C/MUT4fold$A
+MUT4fold$T_A.SubstRate.heavy = MUT4fold$A_T/MUT4fold$A
+MUT4fold$T_C.SubstRate.heavy = MUT4fold$A_G/MUT4fold$A
+MUT4fold$G_T.SubstRate.heavy = MUT4fold$C_A/MUT4fold$C
+MUT4fold$G_C.SubstRate.heavy = MUT4fold$C_G/MUT4fold$C
+MUT4fold$G_A.SubstRate.heavy = MUT4fold$C_T/MUT4fold$C
+MUT4fold$C_G.SubstRate.heavy = MUT4fold$G_C/MUT4fold$G
+MUT4fold$C_T.SubstRate.heavy = MUT4fold$G_A/MUT4fold$G
+MUT4fold$C_A.SubstRate.heavy = MUT4fold$G_T/MUT4fold$G
 ```
 
 ### Drop unused colums
