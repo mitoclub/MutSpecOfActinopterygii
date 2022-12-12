@@ -35,13 +35,13 @@ mutSpec = read.table('../Data/3results/VertebratePolymorphisms.MutSpecData.txt',
 # Creating different subsets of mutspecs
 ```{r message=FALSE}
 mutSpecCytB = mutSpec[mutSpec$Gene == "CytB",]
-mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %>% summarise(A_C.N=mean(A_C.N), A_G.N=mean(A_G.N), A_T.N=mean(A_T.N), C_A.N=mean(C_A.N), C_G.N=mean(C_G.N), C_T.N=mean(C_T.N), G_A.N=mean(G_A.N), G_C.N=mean(G_C.N), G_T.N=mean(G_T.N), T_A.N=mean(T_A.N), T_C.N=mean(T_C.N), T_G.N=mean(T_G.N))
+mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %>% summarise(A_C.SubstRate.heavy=mean(A_C.SubstRate.heavy), A_G.SubstRate.heavy=mean(A_G.SubstRate.heavy), A_T.SubstRate.heavy=mean(A_T.SubstRate.heavy), C_A.SubstRate.heavy=mean(C_A.SubstRate.heavy), C_G.SubstRate.heavy=mean(C_G.SubstRate.heavy), C_T.SubstRate.heavy=mean(C_T.SubstRate.heavy), G_A.SubstRate.heavy=mean(G_A.SubstRate.heavy), G_C.SubstRate.heavy=mean(G_C.SubstRate.heavy), G_T.SubstRate.heavy=mean(G_T.SubstRate.heavy), T_A.SubstRate.heavy=mean(T_A.SubstRate.heavy), T_C.SubstRate.heavy=mean(T_C.SubstRate.heavy), T_G.SubstRate.heavy=mean(T_G.SubstRate.heavy))
 table(mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]$Class)
 ```
 # Average MutSpec for Actinopteri
 ```{r message=FALSE}
 averageMutSpec = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),][,5:16]; summary(averageMutSpec)
-averageMutSpec = averageMutSpec[!is.na(averageMutSpec$G_A.N) & !is.na(averageMutSpec$G_C.N) & !is.na(averageMutSpec$G_T.N),]; summary(averageMutSpec)
+averageMutSpec = averageMutSpec[!is.na(averageMutSpec$G_A.SubstRate.heavy) & !is.na(averageMutSpec$G_C.SubstRate.heavy) & !is.na(averageMutSpec$G_T.SubstRate.heavy),]; summary(averageMutSpec)
 averageMutSpec = as.data.frame(apply(averageMutSpec, 2, mean)); averageMutSpec$Subs = row.names(averageMutSpec); names(averageMutSpec) = c("Freq", "Subs")
 f1 = ggbarplot(averageMutSpec, x = "Subs", y = "Freq", fill = "Subs", color = "Subs",
           palette = c("#bdbdbd", "#036a5b", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#9c3d37", "#055088", "#bdbdbd", "#bdbdbd", "#bdbdbd", "#73514f", "#bdbdbd"), 
@@ -53,41 +53,41 @@ f1
 ## Correlations of MutSpec only CytB with temperature
 
 ```{r message=FALSE, warning=FALSE} 
-cor.test(mutSpecCytB$A_T.N,mutSpecCytB$temperature, method = 'spearman')   
-cor.test(mutSpecCytB$T_A.N,mutSpecCytB$temperature, method = 'spearman')   
-cor.test(mutSpecCytB$T_C.N,mutSpecCytB$temperature, method = 'spearman')       
-cor.test(mutSpecCytB$G_A.N,mutSpecCytB$temperature, method = 'spearman')    
-cor.test(mutSpecCytB$G_T.N,mutSpecCytB$temperature, method = 'spearman')    
-cor.test(mutSpecCytB$G_C.N,mutSpecCytB$temperature, method = 'spearman')    
-cor.test(mutSpecCytB$C_A.N,mutSpecCytB$temperature, method = 'spearman')     
-cor.test(mutSpecCytB$C_T.N,mutSpecCytB$temperature, method = 'spearman')     
-cor.test(mutSpecCytB$C_G.N,mutSpecCytB$temperature, method = 'spearman')    
+cor.test(mutSpecCytB$A_T.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')   
+cor.test(mutSpecCytB$T_A.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')   
+cor.test(mutSpecCytB$T_C.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')       
+cor.test(mutSpecCytB$G_A.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')    
+cor.test(mutSpecCytB$G_T.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')    
+cor.test(mutSpecCytB$G_C.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')    
+cor.test(mutSpecCytB$C_A.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')     
+cor.test(mutSpecCytB$C_T.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')     
+cor.test(mutSpecCytB$C_G.SubstRate.heavy,mutSpecCytB$temperature, method = 'spearman')    
 ```
 
 ## Correlation of MutSpec allgenes by mean with temperature
 
 
 ```{r message=FALSE, warning=FALSE}  
-cor.test(mutSpecAllMean$A_T.N,mutSpecAllMean$temperature, method = 'spearman')   
-cor.test(mutSpecAllMean$A_G.N,mutSpecAllMean$temperature, method = 'spearman')      
-cor.test(mutSpecAllMean$A_C.N,mutSpecAllMean$temperature, method = 'spearman')      
-cor.test(mutSpecAllMean$T_A.N,mutSpecAllMean$temperature, method = 'spearman')   
-cor.test(mutSpecAllMean$T_G.N,mutSpecAllMean$temperature, method = 'spearman')   
-cor.test(mutSpecAllMean$T_C.N,mutSpecAllMean$temperature, method = 'spearman')       
-cor.test(mutSpecAllMean$G_A.N,mutSpecAllMean$temperature, method = 'spearman')    
-cor.test(mutSpecAllMean$G_T.N,mutSpecAllMean$temperature, method = 'spearman')    
-cor.test(mutSpecAllMean$G_C.N,mutSpecAllMean$temperature, method = 'spearman')    
-cor.test(mutSpecAllMean$C_A.N,mutSpecAllMean$temperature, method = 'spearman')     
-cor.test(mutSpecAllMean$C_T.N,mutSpecAllMean$temperature, method = 'spearman')     
-cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$temperature, method = 'spearman')   
+cor.test(mutSpecAllMean$A_T.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')   
+cor.test(mutSpecAllMean$A_G.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')      
+cor.test(mutSpecAllMean$A_C.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')      
+cor.test(mutSpecAllMean$T_A.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')   
+cor.test(mutSpecAllMean$T_G.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')   
+cor.test(mutSpecAllMean$T_C.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')       
+cor.test(mutSpecAllMean$G_A.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')    
+cor.test(mutSpecAllMean$G_T.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')    
+cor.test(mutSpecAllMean$G_C.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')    
+cor.test(mutSpecAllMean$C_A.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')     
+cor.test(mutSpecAllMean$C_T.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')     
+cor.test(mutSpecAllMean$C_G.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')   
 ```
 ## Correlation of TCdivAG with temperature
 
 ```{r message=FALSE, warning=FALSE}
-mutSpecAllMean$TCdivAG=mutSpecAllMean$T_C.N/mutSpecAllMean$A_G.N
+mutSpecAllMean$TCdivAG=mutSpecAllMean$T_C.SubstRate.heavy/mutSpecAllMean$A_G.SubstRate.heavy
 mutSpecAllMean[mutSpecAllMean$TCdivAG == "Inf" | mutSpecAllMean$TCdivAG == "NaN",]$TCdivAG = NA
 cor.test(mutSpecAllMean$TCdivAG,mutSpecAllMean$temperature, method = 'spearman')
-mutSpecAllMean$GAdivCT=mutSpecAllMean$G_A.N/mutSpecAllMean$C_T.N
+mutSpecAllMean$GAdivCT=mutSpecAllMean$G_A.SubstRate.heavy/mutSpecAllMean$C_T.SubstRate.heavy
 mutSpecAllMean[mutSpecAllMean$GAdivCT == "Inf" | mutSpecAllMean$GAdivCT == "NaN" | is.na(mutSpecAllMean$GAdivCT),]$GAdivCT = NA
 cor.test(mutSpecAllMean$GAdivCT,mutSpecAllMean$temperature, method = 'spearman')
 ```
@@ -96,7 +96,7 @@ cor.test(mutSpecAllMean$GAdivCT,mutSpecAllMean$temperature, method = 'spearman')
 
 ```{r message=FALSE, warning= FALSE}
 mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]; N = as.character(paste("N", nrow(mutSpecAllMean), sep="")) #delete NA
-f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "T_C.N",
+f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "T_C.SubstRate.heavy",
           color = "#73514f", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
@@ -106,7 +106,7 @@ f1a
 ```
 
 ```{r message=FALSE, warning= FALSE}
-f1b1 = ggscatter(mutSpecAllMean, x = "temperature", y = "G_A.N",
+f1b1 = ggscatter(mutSpecAllMean, x = "temperature", y = "G_A.SubstRate.heavy",
           color = "#055088", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
@@ -116,7 +116,7 @@ f1b1
 ```   
 
 ```{r message=FALSE, warning= FALSE}
-f1b2 = ggscatter(mutSpecAllMean, x = "temperature", y = "C_T.N",
+f1b2 = ggscatter(mutSpecAllMean, x = "temperature", y = "C_T.SubstRate.heavy",
           color = "#9c3d37", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
@@ -148,35 +148,35 @@ f1d
 ## correlation of mutspec with time of maturation in fishes
 
 ```{r message=FALSE, warning=FALSE}  
-cor.test(mutSpecAllMean$A_T.N,mutSpecAllMean$matur_tm, method = 'spearman')   
-cor.test(mutSpecAllMean$A_G.N,mutSpecAllMean$matur_tm, method = 'spearman')      
-cor.test(mutSpecAllMean$A_C.N,mutSpecAllMean$matur_tm, method = 'spearman')      
-cor.test(mutSpecAllMean$T_A.N,mutSpecAllMean$matur_tm, method = 'spearman')   
-cor.test(mutSpecAllMean$T_G.N,mutSpecAllMean$matur_tm, method = 'spearman')   
-cor.test(mutSpecAllMean$T_C.N,mutSpecAllMean$matur_tm, method = 'spearman')       
-cor.test(mutSpecAllMean$G_A.N,mutSpecAllMean$matur_tm, method = 'spearman')    
-cor.test(mutSpecAllMean$G_T.N,mutSpecAllMean$matur_tm, method = 'spearman')    
-cor.test(mutSpecAllMean$G_C.N,mutSpecAllMean$matur_tm, method = 'spearman')    
-cor.test(mutSpecAllMean$C_A.N,mutSpecAllMean$matur_tm, method = 'spearman')     
-cor.test(mutSpecAllMean$C_T.N,mutSpecAllMean$matur_tm, method = 'spearman')     
-cor.test(mutSpecAllMean$C_G.N,mutSpecAllMean$matur_tm, method = 'spearman') 
+cor.test(mutSpecAllMean$A_T.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')   
+cor.test(mutSpecAllMean$A_G.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')      
+cor.test(mutSpecAllMean$A_C.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')      
+cor.test(mutSpecAllMean$T_A.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')   
+cor.test(mutSpecAllMean$T_G.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')   
+cor.test(mutSpecAllMean$T_C.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')       
+cor.test(mutSpecAllMean$G_A.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')    
+cor.test(mutSpecAllMean$G_T.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')    
+cor.test(mutSpecAllMean$G_C.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')    
+cor.test(mutSpecAllMean$C_A.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')     
+cor.test(mutSpecAllMean$C_T.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')     
+cor.test(mutSpecAllMean$C_G.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman') 
 ```
 ## LM
 ```{r}
-summary(lm(formula = temperature ~ scale(T_C.N) + scale(G_A.N), data = mutSpecAllMean))
-summary(lm(formula = T_C.N ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
-summary(lm(formula = T_C.N ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
-summary(lm(formula = T_C.N ~ scale(temperature), data = mutSpecAllMean))
-summary(lm(formula = G_A.N ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
-summary(lm(formula = G_A.N ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
-summary(lm(formula = G_A.N ~ scale(temperature), data = mutSpecAllMean))
+summary(lm(formula = temperature ~ scale(T_C.SubstRate.heavy) + scale(G_A.SubstRate.heavy), data = mutSpecAllMean))
+summary(lm(formula = T_C.SubstRate.heavy ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = T_C.SubstRate.heavy ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = T_C.SubstRate.heavy ~ scale(temperature), data = mutSpecAllMean))
+summary(lm(formula = G_A.SubstRate.heavy ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = G_A.SubstRate.heavy ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = G_A.SubstRate.heavy ~ scale(temperature), data = mutSpecAllMean))
 
 mutSpecAllMeanNAzeroomit = mutSpecAllMean[!is.na(mutSpecAllMean$TCdivAG),]
 mutSpecAllMeanNAzeroomit = mutSpecAllMeanNAzeroomit[mutSpecAllMeanNAzeroomit$TCdivAG != 0,]
 mutSpecAllMeanNAzeroomit = mutSpecAllMeanNAzeroomit[!is.na(mutSpecAllMeanNAzeroomit$GAdivCT),]
 mutSpecAllMeanNAzeroomit = mutSpecAllMeanNAzeroomit[mutSpecAllMeanNAzeroomit$GAdivCT != 0,]
 
-summary(lm(formula = temperature ~ scale(T_C.N) + scale(G_A.N) + scale(TCdivAG) + scale(GAdivCT), data = mutSpecAllMeanNAzeroomit))
+summary(lm(formula = temperature ~ scale(T_C.SubstRate.heavy) + scale(G_A.SubstRate.heavy) + scale(TCdivAG) + scale(GAdivCT), data = mutSpecAllMeanNAzeroomit))
 summary(lm(formula = TCdivAG ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
 summary(lm(formula = TCdivAG ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
 summary(lm(formula = GAdivCT ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
