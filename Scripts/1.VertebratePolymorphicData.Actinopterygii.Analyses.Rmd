@@ -120,7 +120,16 @@ cor.test(mutSpecAllMeanBySums$T_C.SubstRate.heavy,mutSpecAllMeanBySums$temperatu
 cor.test(mutSpecAllMeanBySums$C_T.SubstRate.heavy,mutSpecAllMeanBySums$temperature, method = 'spearman')   
 ```
 
-## Correlation of TCdivAG with temperature
+# Correlation of TCdivAG with temperature
+
+## CYT B
+```{r message=FALSE, warning=FALSE}
+mutSpecCytB$AGdivTC=mutSpecCytB$A_G.SubstRate.heavy/mutSpecCytB$T_C.SubstRate.heavy
+mutSpecCytB[mutSpecCytB$AGdivTC == "Inf" | mutSpecCytB$AGdivTC == "NaN",]$AGdivTC = NA
+cor.test(mutSpecCytB$AGdivTC,mutSpecCytB$temperature, method = 'spearman')
+```
+
+## MEAN
 
 ```{r message=FALSE, warning=FALSE}
 mutSpecAllMean$AGdivTC=mutSpecAllMean$A_G.SubstRate.heavy/mutSpecAllMean$T_C.SubstRate.heavy
@@ -180,7 +189,24 @@ cor.test(mutSpecAllMean$G_A.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 's
 cor.test(mutSpecAllMean$G_C.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')    
 cor.test(mutSpecAllMean$C_G.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman') 
 ```
-## LM
+
+# LM
+
+## Cyt B
+```{r}
+summary(lm(formula = temperature ~ scale(A_G.SubstRate.heavy) + scale(C_T.SubstRate.heavy), data = mutSpecCytB))
+summary(lm(formula = A_G.SubstRate.heavy ~ scale(temperature) * scale(matur_tm), data = mutSpecCytB))
+summary(lm(formula = A_G.SubstRate.heavy ~ scale(temperature) + scale(matur_tm), data = mutSpecCytB))
+summary(lm(formula = A_G.SubstRate.heavy ~ scale(temperature), data = mutSpecCytB))
+
+mutSpecCytBNAzeroomit = mutSpecCytB[!is.na(mutSpecCytB$AGdivTC),]
+mutSpecCytBNAzeroomit = mutSpecCytBNAzeroomit[mutSpecCytBNAzeroomit$AGdivTC != 0,]
+
+summary(lm(formula = AGdivTC ~ scale(temperature) * scale(matur_tm), data = mutSpecCytBNAzeroomit))
+summary(lm(formula = AGdivTC ~ scale(temperature) + scale(matur_tm), data = mutSpecCytBNAzeroomit))
+summary(lm(formula = AGdivTC ~ scale(temperature), data = mutSpecCytBNAzeroomit))
+``` 
+## Mean 
 ```{r}
 summary(lm(formula = temperature ~ scale(A_G.SubstRate.heavy) + scale(C_T.SubstRate.heavy), data = mutSpecAllMean))
 summary(lm(formula = A_G.SubstRate.heavy ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
@@ -194,8 +220,29 @@ summary(lm(formula = AGdivTC ~ scale(temperature) * scale(matur_tm), data = mutS
 summary(lm(formula = AGdivTC ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
 summary(lm(formula = AGdivTC ~ scale(temperature), data = mutSpecAllMeanNAzeroomit))
 ``` 
-## PGLS
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# PGLS 
+
+## CytB
+```{r message=FALSE, warning=FALSE}
+tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
+
+row.names(mutSpecCytBNAzeroomit) = mutSpecCytBNAzeroomit$Species
+tree_pruned = treedata(tree, mutSpecCytBNAzeroomit, sort=T, warnings=T)$phy
+
+data<-as.data.frame(treedata(tree_pruned, mutSpecCytBNAzeroomit, sort=T, warnings=T)$data)
+data$Species = as.character(data$Species)
+data$AGdivTC = as.numeric(as.character(data$AGdivTC))
+data$temperature = as.numeric(as.character(data$temperature))
+data$matur_tm = as.numeric(as.character(data$matur_tm))
+data_comp <- comparative.data(tree_pruned, data, Species, vcv=TRUE)
+
+summary(pgls(AGdivTC ~ scale(temperature), data_comp, lambda="ML"))
+summary(pgls(log2(AGdivTC) ~ log2(temperature), data_comp, lambda="ML"))
+```
+
+## Mean
+```{r message=FALSE, warning=FALSE}
 tree = read.tree('../Data/1raw/mtalign.aln.treefile.rooted')
 
 row.names(mutSpecAllMeanNAzeroomit) = mutSpecAllMeanNAzeroomit$Species
