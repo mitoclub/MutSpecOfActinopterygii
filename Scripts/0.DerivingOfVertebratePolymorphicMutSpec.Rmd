@@ -40,7 +40,7 @@ VecOfSynFourFoldDegenerateSites <- c('CTT', 'CTC', 'CTA', 'CTG',
 
 ### Unzip (optionaly) files and get list of them
 ```{r}
-unzip("../Data/1raw/POLARIZEDBR_DATA.zip")
+### unzip("../Data/1raw/POLARIZEDBR_DATA.zip")
 List = list.files("../Data/1raw/POLARIZEDBR_DATA/")
 ```
 
@@ -206,39 +206,56 @@ MUT4fold = merge(MUT4fold,mut_count, by = c('Species', "Gene"))
 
 ## Normalization 12 subs
 Normalizing by divide substitution on number of all substitution occurred in each species and gene
+Also transalte TO HEAVY CHAIN
 
 ```{r echo = FALSE}
 
-MUT4fold$A = as.numeric(MUT4fold$A)
-MUT4fold$T = as.numeric(MUT4fold$T)
-MUT4fold$G = as.numeric(MUT4fold$G)
-MUT4fold$C = as.numeric(MUT4fold$C)
+MUT4fold$T.heavy = as.numeric(MUT4fold$A)
+MUT4fold$A.heavy = as.numeric(MUT4fold$T)
+MUT4fold$C.heavy = as.numeric(MUT4fold$G)
+MUT4fold$G.heavy = as.numeric(MUT4fold$C)
 
 ```
 
 ### Calculating FrX for 4 nucl
 ```{r}
-MUT4fold$FrA = MUT4fold$A / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
-MUT4fold$FrT = MUT4fold$T / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
-MUT4fold$FrG = MUT4fold$G / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
-MUT4fold$FrC = MUT4fold$C / (MUT4fold$A + MUT4fold$T + MUT4fold$C + MUT4fold$G)
+MUT4fold$FrA.heavy = MUT4fold$A.heavy / (MUT4fold$A.heavy + MUT4fold$T.heavy + MUT4fold$C.heavy + MUT4fold$G.heavy)
+MUT4fold$FrT.heavy = MUT4fold$T.heavy / (MUT4fold$A.heavy + MUT4fold$T.heavy + MUT4fold$C.heavy + MUT4fold$G.heavy)
+MUT4fold$FrG.heavy = MUT4fold$G.heavy / (MUT4fold$A.heavy + MUT4fold$T.heavy + MUT4fold$C.heavy + MUT4fold$G.heavy)
+MUT4fold$FrC.heavy = MUT4fold$C.heavy / (MUT4fold$A.heavy + MUT4fold$T.heavy + MUT4fold$C.heavy + MUT4fold$G.heavy)
 ```
+### Transalte absolute subs to heavy chain
 
+```{r}
+MUT4fold$A_G.heavy = MUT4fold$T_C
+MUT4fold$A_T.heavy = MUT4fold$T_A
+MUT4fold$A_C.heavy = MUT4fold$T_G
+MUT4fold$T_G.heavy = MUT4fold$A_C
+MUT4fold$T_A.heavy = MUT4fold$A_T
+MUT4fold$T_C.heavy = MUT4fold$A_G
+MUT4fold$G_T.heavy = MUT4fold$C_A
+MUT4fold$G_C.heavy = MUT4fold$C_G
+MUT4fold$G_A.heavy = MUT4fold$C_T
+MUT4fold$C_G.heavy = MUT4fold$G_C
+MUT4fold$C_T.heavy = MUT4fold$G_A
+MUT4fold$C_A.heavy = MUT4fold$G_T
+```
 ### Normalization
 ```{r}
-MUT4fold$A_G.SubstRate.heavy = MUT4fold$T_C/MUT4fold$T
-MUT4fold$A_T.SubstRate.heavy = MUT4fold$T_A/MUT4fold$T
-MUT4fold$A_C.SubstRate.heavy = MUT4fold$T_G/MUT4fold$T
-MUT4fold$T_G.SubstRate.heavy = MUT4fold$A_C/MUT4fold$A
-MUT4fold$T_A.SubstRate.heavy = MUT4fold$A_T/MUT4fold$A
-MUT4fold$T_C.SubstRate.heavy = MUT4fold$A_G/MUT4fold$A
-MUT4fold$G_T.SubstRate.heavy = MUT4fold$C_A/MUT4fold$C
-MUT4fold$G_C.SubstRate.heavy = MUT4fold$C_G/MUT4fold$C
-MUT4fold$G_A.SubstRate.heavy = MUT4fold$C_T/MUT4fold$C
-MUT4fold$C_G.SubstRate.heavy = MUT4fold$G_C/MUT4fold$G
-MUT4fold$C_T.SubstRate.heavy = MUT4fold$G_A/MUT4fold$G
-MUT4fold$C_A.SubstRate.heavy = MUT4fold$G_T/MUT4fold$G
+MUT4fold$A_G.SubstRate.heavy = MUT4fold$A_G.heavy/MUT4fold$A.heavy
+MUT4fold$A_T.SubstRate.heavy = MUT4fold$A_T.heavy/MUT4fold$A.heavy
+MUT4fold$A_C.SubstRate.heavy = MUT4fold$A_C.heavy/MUT4fold$A.heavy
+MUT4fold$T_G.SubstRate.heavy = MUT4fold$T_G.heavy/MUT4fold$T.heavy
+MUT4fold$T_A.SubstRate.heavy = MUT4fold$T_A.heavy/MUT4fold$T.heavy
+MUT4fold$T_C.SubstRate.heavy = MUT4fold$T_C.heavy/MUT4fold$T.heavy
+MUT4fold$G_T.SubstRate.heavy = MUT4fold$G_T.heavy/MUT4fold$G.heavy
+MUT4fold$G_C.SubstRate.heavy = MUT4fold$G_C.heavy/MUT4fold$G.heavy
+MUT4fold$G_A.SubstRate.heavy = MUT4fold$G_A.heavy/MUT4fold$G.heavy
+MUT4fold$C_G.SubstRate.heavy = MUT4fold$C_G.heavy/MUT4fold$C.heavy
+MUT4fold$C_T.SubstRate.heavy = MUT4fold$C_T.heavy/MUT4fold$C.heavy
+MUT4fold$C_A.SubstRate.heavy = MUT4fold$C_A.heavy/MUT4fold$C.heavy
 ```
+
 
 ### Drop unused colums
 ```{r}
@@ -248,7 +265,13 @@ MUT_final = subset(MUT4fold, select = -c(AncestralSeqName, DescendantSeqName,
                                          NextAncCodon,
                                          PreviousDesCodon,    DescendantCodon,
                                          NextDesCodon,    AncestralAA,
-                                         DescendantAA,    Subs))
+                                         DescendantAA,    Subs, T, A, G, C,
+                                         A_C,C_A,
+                                         A_G,G_A,
+                                         C_G,G_C,
+                                         C_T,T_C,
+                                         G_T,T_G,
+                                         T_A,A_T))
 
 MUT_final = MUT_final[!duplicated(MUT_final[c(1,2)]),]
 MUT_final %>% 
