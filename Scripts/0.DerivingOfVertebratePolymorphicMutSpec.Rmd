@@ -89,7 +89,7 @@ for (i in 1:length(List))
 ```
 
 ```{r}
-Final = as.data.frame(Final); 
+FinalX = as.data.frame(Final); 
 names(Final)=c('Species','Gene','A','T','G','C','NumberOfAllCodons',"NumberOfFourFoldDegenCodons",'NumberOfSeq')
 ```
 
