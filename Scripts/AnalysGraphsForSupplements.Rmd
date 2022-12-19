@@ -1,0 +1,190 @@
+---
+title: "AnalysesGraphsForSupplements"
+author: "Dmitrii Iliushchenko"
+date: "2022-12-14"
+output:
+      html_document:
+      toc: true
+      toc_depth: 3
+      toc_float: true
+      number_section: true
+---
+
+```{r setup, echo=TRUE, message=FALSE}
+rm(list=ls(all=TRUE))
+
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+```
+
+### Read MutSpec with temperature and taxa
+```{r}
+muttemp = read.table('../data/3results/VertebratePolymorphisms.MutSpecData.txt', header=T)
+
+```
+
+### Add families from taxa df
+```{r}
+taxa = read.table("../data/1raw/TaxaFromKostya.Names.stat", sep = '\t',header = FALSE) 
+taxa = as.data.frame(taxa[grepl('Actinopteri',taxa$V1),])
+names(taxa) = 'taxa'
+
+taxa$Species = gsub(";(.*)",'',taxa$taxa);
+taxa$Species = gsub(" ",'_',taxa$Species);
+taxa$Family = gsub(";Actinopteri(.*)",'',taxa$taxa)
+taxa$Family = gsub("(.*);",'',taxa$Family)
+taxa = taxa[,-1]
+
+Fishes = merge(muttemp, taxa, by = 'Species')
+for (i in 1:nrow(Fishes))   {Fishes$FamilyShort[i] = paste(unlist(strsplit(Fishes$Family[i],''))[c(1:3)],collapse = '') }
+
+```
+
+### Take only fishes by temperature 
+```{r}
+Fishes = Fishes[!is.na(Fishes$temperature),]
+```
+
+### Calculate TsTv metric
+```{r}
+Fishes$TsTv = (Fishes$T_C.SubstRate.heavy + Fishes$C_T.SubstRate.heavy + Fishes$G_A.SubstRate.heavy + Fishes$A_G.SubstRate.heavy) / 
+              (Fishes$T_A.SubstRate.heavy + Fishes$A_T.SubstRate.heavy + Fishes$G_C.SubstRate.heavy + Fishes$C_G.SubstRate.heavy + 
+               Fishes$G_T.SubstRate.heavy + Fishes$T_G.SubstRate.heavy + Fishes$C_A.SubstRate.heavy + Fishes$A_C.SubstRate.heavy)
+```
+
+###Ddelete families, that have less than 3 species!!!
+```{r}
+FamFreq = data.frame(table(Fishes$Family))
+FrequentFamilies = FamFreq[FamFreq$Freq >= 3,]$Var1
+FamFreq = FamFreq[FamFreq$Var1 %in% FrequentFamilies,]
+names(FamFreq)=c('Family','NumberOfSpecies')
+Fishes = Fishes[Fishes$Family %in% FrequentFamilies,]
+```
+
+###  Calculate Ts/Tv and A<G/T<C
+```{r}
+Fishes$A_G.T_C.heavy = (Fishes$A_G.heavy/Fishes$T_C.heavy)
+Fishes = Fishes[Fishes$A_G.T_C.heavy > 0,]
+Fishes = Fishes[Fishes$A_G.T_C.heavy < Inf,]
+Fishes = Fishes[Fishes$TsTv < Inf,]
+Fishes = Fishes[!is.na(Fishes$A_G.T_C.heavy),]
+```
+
+### Calculate median of A>G/T>C; TsTv; Temperature by Families
+```{r}
+agg = aggregate(list(Fishes$TsTv, Fishes$A_G.T_C.heavy, Fishes$temperature), by = list(Fishes$Family), FUN = median)
+names(agg) = c('Family','TsTv','A_G.T_C','Temperature')
+for (i in 1:nrow(agg))   {agg$FamilyShort[i] = paste(unlist(strsplit(agg$Family[i],''))[c(1:3)],collapse = '')  }
+```
+
+### Cor test A>G/T>C on heavy chain with temperature
+```{r}
+cor.test(agg$A_G.T_C, agg$Temperature,method = 'spearman')
+```
+### Plots
+```{r}
+ggplot(data = agg, aes(x = Temperature, y = A_G.T_C, label = FamilyShort, color = Family))+
+  geom_point()+
+  geom_smooth(method="lm", se=F, col = 'red')+
+  theme_classic()+
+  labs(x = 'Median annual water temperature, °C', y = 'Median A>G/T>C')+
+  geom_text(aes(label=FamilyShort),hjust=-0.15, vjust=-0.5, show.legend = F)
+  
+```
+
+### Plots for Families
+```{r}
+ggplot(data = Fishes, aes(x = temperature, y = A_G.T_C.heavy, group = FamilyShort, fill = FamilyShort))+
+  geom_boxplot(alpha=0.3)+
+  theme_classic()+
+  labs(x = 'Temperature, C°', y = 'A>G/T>C')
+```
+
+### Boxplots by quartiles
+```{r}
+boxplot(Fishes[Fishes$temperature<=quantile(Fishes$temperature,0.25),]$A_G.T_C,
+        Fishes[Fishes$temperature>quantile(Fishes$temperature,0.25) & Fishes$temperature<=quantile(Fishes$temperature,0.5),]$A_G.T_C,
+        Fishes[Fishes$temperature>quantile(Fishes$temperature,0.5) & Fishes$temperature<=quantile(Fishes$temperature,0.75),]$A_G.T_C,
+        Fishes[Fishes$temperature>quantile(Fishes$temperature,0.75),]$A_G.T_C,
+        names=c('1','2','3','4'), outline = FALSE, notch = FALSE, ylab = 'A>G/T>C', xlab = 'Quartiles of median annual water temperature, C')
+
+```
+
+### Boxplots by median
+
+```{r}
+boxplot(Fishes[Fishes$temperature<=quantile(Fishes$temperature,0.5),]$A_G.T_C,
+        Fishes[Fishes$temperature>quantile(Fishes$temperature,0.5),]$A_G.T_C,
+        names=c('colder fishes','warmer fishes'), outline = FALSE, notch = TRUE, cex = 3, ylab = 'A>G/T>C')
+```
+
+### Define fishes by temp and maturation
+```{r}
+fishes_matur = muttemp[!is.na(muttemp$matur_tm),]
+fishes_matur = fishes_matur[!is.na(fishes_matur$temperature),]
+```
+
+### Calculate metrics 
+```{r}
+fishes_matur$CtoTSkew = (fishes_matur$FrC.heavy-fishes_matur$FrT.heavy)/(fishes_matur$FrC.heavy+fishes_matur$FrT.heavy) 
+fishes_matur$GtoASkew = (fishes_matur$FrG.heavy-fishes_matur$FrA.heavy)/(fishes_matur$FrG.heavy+fishes_matur$FrA.heavy)
+fishes_matur$AtoGSkew = (fishes_matur$FrA.heavy-fishes_matur$FrG.heavy)/(fishes_matur$FrA.heavy+fishes_matur$FrG.heavy)
+fishes_matur$TtoCSkew = (fishes_matur$FrT.heavy-fishes_matur$FrC.heavy)/(fishes_matur$FrT.heavy+fishes_matur$FrC.heavy)
+fishes_matur$TG = fishes_matur$FrT.heavy+fishes_matur$FrG.heavy
+fishes_matur$AC = fishes_matur$FrA.heavy+fishes_matur$FrC.heavy
+fishes_matur$TG_ACSkew = (fishes_matur$TG-fishes_matur$AC)/(fishes_matur$TG+fishes_matur$AC)
+fishes_matur$AC_TGSkew = -(fishes_matur$TG-fishes_matur$AC)/(fishes_matur$TG+fishes_matur$AC)
+```
+
+### Function to define long or short maturated
+```{r}
+medmatur = median(fishes_matur$matur_tm)
+
+mmm = function(x)
+{
+  if (x < medmatur) {return('Short Maturated')}
+  else{return('Long Maturated')}
+}
+```
+
+### Define long or short maturated
+```{r}
+fishes_matur$Maturated = apply(as.matrix(fishes_matur$matur_tm),1,mmm)
+
+m_temp_s = median(fishes_matur[fishes_matur$Maturated == 'Short Maturated',]$temperature)
+m_temp_l = median(fishes_matur[fishes_matur$Maturated == 'Long Maturated',]$temperature)
+```
+
+
+### Define what cold or warm incide short and long maturated fishes
+```{r}
+for (i in 1:nrow(fishes_matur))
+{
+  if (fishes_matur$Maturated[i] == 'Short Maturated')
+  {
+    if (fishes_matur$temperature[i] <= m_temp_s) {fishes_matur$Temp[i] = 'Colder Fishes'}
+    else {fishes_matur$Temp[i] = 'Warmer Fishes'}
+  }
+  else if (fishes_matur$Maturated[i] == 'Long Maturated') 
+  {
+    if (fishes_matur$temperature[i] <= m_temp_l) {fishes_matur$Temp[i] = 'Colder Fishes'}
+    else {fishes_matur$Temp[i] = 'Warmer Fishes'}
+  }
+}
+```
+
+
+### Boxplots of maturated and cold/warm fishes
+```{r}
+ggplot(data = fishes_matur, aes(x = Temp, y = TG_ACSkew))+
+  geom_boxplot()+
+  facet_wrap(~Maturated)+
+  theme_test()+
+  labs(y = 'TGh-ACh skew')
+```
+
+
+
