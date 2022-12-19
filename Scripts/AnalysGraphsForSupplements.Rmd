@@ -58,7 +58,7 @@ Fishes$TsTv = (Fishes$T_C.SubstRate.heavy + Fishes$C_T.SubstRate.heavy + Fishes$
 ###Ddelete families, that have less than 3 species!!!
 ```{r}
 FamFreq = data.frame(table(Fishes$Family))
-FrequentFamilies = FamFreq[FamFreq$Freq >= 3,]$Var1
+FrequentFamilies = FamFreq[FamFreq$Freq > 3,]$Var1
 FamFreq = FamFreq[FamFreq$Var1 %in% FrequentFamilies,]
 names(FamFreq)=c('Family','NumberOfSpecies')
 Fishes = Fishes[Fishes$Family %in% FrequentFamilies,]
