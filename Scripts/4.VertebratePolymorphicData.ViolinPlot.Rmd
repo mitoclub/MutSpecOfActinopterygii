@@ -1,0 +1,62 @@
+---
+title: "ComparisonOfMutSpecBetweenDiffClasses"
+author: "Alina G. Mikhailova"
+date: "2022-12-19"
+output:
+      html_document:
+      toc: true
+      toc_depth: 3
+      toc_float: true
+      number_section: true
+---
+```{r setup, echo=TRUE, message=FALSE}
+rm(list=ls(all=TRUE))
+
+library(dplyr)
+library("ggpubr")
+```
+
+## Read MutSpec with temperature and taxa
+```{r message=F}
+mutSpec = read.table('../data/3results/VertebratePolymorphisms.MutSpecData.txt', header=T)
+mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %>% summarise(A_C.SubstRate.heavy=mean(A_C.SubstRate.heavy), A_G.SubstRate.heavy=mean(A_G.SubstRate.heavy), A_T.SubstRate.heavy=mean(A_T.SubstRate.heavy), C_A.SubstRate.heavy=mean(C_A.SubstRate.heavy), C_G.SubstRate.heavy=mean(C_G.SubstRate.heavy), C_T.SubstRate.heavy=mean(C_T.SubstRate.heavy), G_A.SubstRate.heavy=mean(G_A.SubstRate.heavy), G_C.SubstRate.heavy=mean(G_C.SubstRate.heavy), G_T.SubstRate.heavy=mean(G_T.SubstRate.heavy), T_A.SubstRate.heavy=mean(T_A.SubstRate.heavy), T_C.SubstRate.heavy=mean(T_C.SubstRate.heavy), T_G.SubstRate.heavy=mean(T_G.SubstRate.heavy))
+```
+
+## AnAge data reading
+```{r}
+AA = read.table("../Data/1raw/anage_data.txt", header = TRUE, sep = '\t')
+AA$Species = paste(AA$Genus,AA$Species,sep = '_')
+AA$temperature = AA$Temperature..K. - 273.15
+
+BirbTemp =  read.table("../Data/1raw/body_temp.txt", header = TRUE)
+BirbTemp$Class = "Aves"
+
+ALL = merge(mutSpecAllMean, AA, all = T)
+ALL = merge(ALL, BirbTemp, all = T)
+```
+
+## Figures
+```{r message=FALSE}
+pdf('../Figures/PolymorphicData.Actinopterygii.AverageMutSpec.Violin.pdf', width = 10, height = 5.3)
+ggviolin(ALL, x = "Class", y = "temperature", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "Body temperature, ?C",
+         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
+ggviolin(ALL, x = "Class", y = "A_G.SubstRate.heavy", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "AH>GH",
+         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"), yscale = "log2")
+ALLDIV = ALL[!is.na(ALL$A_G.SubstRate.heavy),]; ALLDIV$AGdivTC=ALLDIV$A_G.SubstRate.heavy/ALLDIV$T_C.SubstRate.heavy; ALLDIV[ALLDIV$AGdivTC == "Inf" | ALLDIV$AGdivTC == "NaN" | ALLDIV$AGdivTC == 0,]$AGdivTC  = NA; ALLDIV$AGdivTC = log2(ALLDIV$AGdivTC)
+ggviolin(ALLDIV, x = "Class", y = "AGdivTC", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "AH>GH div TH>CH",
+         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"), yscale = "log2")
+dev.off()
+
+table(ALL[!is.na(ALL$temperature),]$Class)
+table(ALL[!is.na(ALL$A_G.SubstRate.heavy),]$Class)
+table(ALLDIV[!is.na(ALLDIV$AGdivTC),]$Class)
+```
+
+## U tests
+```{r message=FALSE}
+colder <- c("Actinopterygii", "Amphibia", "Reptilia")
+warmer <- c("Mammalia","Aves")
+wilcox.test(ALL[ALL$Class %in% colder,]$A_G, ALL[ALL$Class %in% warmer,]$A_G.SubstRate.heavy, paired=F) 
+wilcox.test(ALLDIV[ALLDIV$Class %in% colder,]$AGdivTC, ALLDIV[ALLDIV$Class %in% warmer,]$AGdivTC, paired=F)
+wilcox.test(ALL[ALL$Class %in% colder,]$Temperature, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
+```
