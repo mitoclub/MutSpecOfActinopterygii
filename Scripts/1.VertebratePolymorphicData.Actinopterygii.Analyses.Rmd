@@ -44,23 +44,6 @@ mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mu
 table(mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]$Class)
 ```
 
-## Subset of mutspec counted by summed substitutions and ancestral nucleotides
-```{r message=FALSE}
-mutSpecAllMeanBySums = mutSpec %>% group_by(Species, temperature); mutSpecAllMeanBySums = mutSpecAllMeanBySums %>% summarise(T.heavy=sum(T.heavy), A.heavy=sum(A.heavy), C.heavy=sum(C.heavy), G.heavy=sum(G.heavy), A_G.heavy=sum(A_G.heavy), A_T.heavy=sum(A_T.heavy), A_C.heavy=sum(A_C.heavy), T_G.heavy=sum(T_G.heavy), T_A.heavy=sum(T_A.heavy), T_C.heavy=sum(T_C.heavy), G_T.heavy=sum(G_T.heavy), G_C.heavy=sum(G_C.heavy), G_A.heavy= sum(G_A.heavy), C_G.heavy=sum(C_G.heavy), C_T.heavy=sum(C_T.heavy), C_A.heavy=sum(C_A.heavy)) %>% ungroup()
-mutSpecAllMeanBySums$A_G.SubstRate.heavy=mutSpecAllMeanBySums$A_G.heavy/mutSpecAllMeanBySums$A.heavy
-mutSpecAllMeanBySums$A_T.SubstRate.heavy=mutSpecAllMeanBySums$A_T.heavy/mutSpecAllMeanBySums$A.heavy
-mutSpecAllMeanBySums$A_C.SubstRate.heavy=mutSpecAllMeanBySums$A_C.heavy/mutSpecAllMeanBySums$A.heavy
-mutSpecAllMeanBySums$T_G.SubstRate.heavy=mutSpecAllMeanBySums$T_G.heavy/mutSpecAllMeanBySums$T.heavy
-mutSpecAllMeanBySums$T_A.SubstRate.heavy=mutSpecAllMeanBySums$T_A.heavy/mutSpecAllMeanBySums$T.heavy
-mutSpecAllMeanBySums$T_C.SubstRate.heavy=mutSpecAllMeanBySums$T_C.heavy/mutSpecAllMeanBySums$T.heavy
-mutSpecAllMeanBySums$G_T.SubstRate.heavy=mutSpecAllMeanBySums$G_T.heavy/mutSpecAllMeanBySums$G.heavy
-mutSpecAllMeanBySums$G_C.SubstRate.heavy=mutSpecAllMeanBySums$G_C.heavy/mutSpecAllMeanBySums$G.heavy
-mutSpecAllMeanBySums$G_A.SubstRate.heavy=mutSpecAllMeanBySums$G_A.heavy/mutSpecAllMeanBySums$G.heavy
-mutSpecAllMeanBySums$C_G.SubstRate.heavy=mutSpecAllMeanBySums$C_G.heavy/mutSpecAllMeanBySums$C.heavy
-mutSpecAllMeanBySums$C_T.SubstRate.heavy=mutSpecAllMeanBySums$C_T.heavy/mutSpecAllMeanBySums$C.heavy
-mutSpecAllMeanBySums$C_A.SubstRate.heavy=mutSpecAllMeanBySums$C_A.heavy/mutSpecAllMeanBySums$C.heavy
-table(mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]$Class)
-```
 
 # Average MutSpec for Actinopteri
 ## CytB
@@ -86,15 +69,6 @@ dev.off()
 f1
 ```
 
-## Counted by summed substitutions and ancestral nucleotides
-```{r message=FALSE}
-averageMutSpec3 = mutSpecAllMeanBySums[,19:30]
-averageMutSpec3 = as.data.frame(apply(averageMutSpec3, 2, mean)); averageMutSpec3$Subs = c("A_G.h", "A_T.h", "A_C.h", "T_G.h", "T_A.h", "T_C.h", "G_T.h", "G_C.h", "G_A.h", "C_G.h", "C_T.h", "C_A.h"); names(averageMutSpec3) = c("Freq", "Subs")
-f1 = ggbarplot(averageMutSpec3, x = "Subs", y = "Freq", fill = "Subs", color = "Subs", 
-          xlab="Substitution types", ylab="Normalised frequencies", legend = "none")  
-f1
-```
-
 # Correlations of MutSpec with temperature
 ## CytB
 
@@ -107,35 +81,34 @@ cor.test(mutSpecCytB$C_T.SubstRate.heavy,mutSpecCytB$temperature, method = 'spea
 
 ## Counted by mean normalised mutspec
 ```{r message=FALSE, warning=FALSE}  
+mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$C_T.SubstRate.heavy),]
 cor.test(mutSpecAllMean$A_G.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')   
 cor.test(mutSpecAllMean$G_A.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')
 cor.test(mutSpecAllMean$T_C.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')    
 cor.test(mutSpecAllMean$C_T.SubstRate.heavy,mutSpecAllMean$temperature, method = 'spearman')   
 ```
-## Counted by summed substitutions and ancestral nucleotides
-```{r message=FALSE, warning=FALSE}  
-cor.test(mutSpecAllMeanBySums$A_G.SubstRate.heavy,mutSpecAllMeanBySums$temperature, method = 'spearman')   
-cor.test(mutSpecAllMeanBySums$G_A.SubstRate.heavy,mutSpecAllMeanBySums$temperature, method = 'spearman')
-cor.test(mutSpecAllMeanBySums$T_C.SubstRate.heavy,mutSpecAllMeanBySums$temperature, method = 'spearman')    
-cor.test(mutSpecAllMeanBySums$C_T.SubstRate.heavy,mutSpecAllMeanBySums$temperature, method = 'spearman')   
-```
 
-# Correlation of TCdivAG with temperature
-
+# Correlation of AGdivTC and CTdivGA with temperature
 ## CYT B
 ```{r message=FALSE, warning=FALSE}
 mutSpecCytB$AGdivTC=mutSpecCytB$A_G.SubstRate.heavy/mutSpecCytB$T_C.SubstRate.heavy
+mutSpecCytB$CTdivGA=mutSpecCytB$C_T.SubstRate.heavy/mutSpecCytB$G_A.SubstRate.heavy
 mutSpecCytB[mutSpecCytB$AGdivTC == "Inf" | mutSpecCytB$AGdivTC == "NaN",]$AGdivTC = NA
+mutSpecCytB[mutSpecCytB$CTdivGA == "Inf" | mutSpecCytB$CTdivGA == "NaN",]$CTdivGA = NA
 cor.test(mutSpecCytB$AGdivTC,mutSpecCytB$temperature, method = 'spearman')
+cor.test(mutSpecCytB$CTdivGA,mutSpecCytB$temperature, method = 'spearman')
 ```
-
 ## MEAN
 
 ```{r message=FALSE, warning=FALSE}
 mutSpecAllMean$AGdivTC=mutSpecAllMean$A_G.SubstRate.heavy/mutSpecAllMean$T_C.SubstRate.heavy
+mutSpecAllMean$CTdivGA=mutSpecAllMean$C_T.SubstRate.heavy/mutSpecAllMean$G_A.SubstRate.heavy
 mutSpecAllMean[mutSpecAllMean$AGdivTC == "Inf" | mutSpecAllMean$AGdivTC == "NaN",]$AGdivTC = NA
+mutSpecAllMean[mutSpecAllMean$CTdivGA == "Inf" | mutSpecAllMean$CTdivGA == "NaN",]$CTdivGA = NA
 cor.test(mutSpecAllMean$AGdivTC,mutSpecAllMean$temperature, method = 'spearman')
+cor.test(mutSpecAllMean$CTdivGA,mutSpecAllMean$temperature, method = 'spearman')
 ```
+
 ## Figures
 ### Figures for mutspec all genes mean
 
