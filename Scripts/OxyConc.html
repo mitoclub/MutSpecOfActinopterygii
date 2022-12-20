@@ -436,6 +436,30 @@ mutSpecAllMean = mutSpecAllMean %&gt;%
 ## sample estimates:
 ##       rho 
 ## 0.4387708</code></pre>
+<pre class="r"><code>cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$A_G.SubstRate.heavy, method = &#39;pearson&#39;) ### p = 0.0602</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  MD_mut_standard$median.oxyconc and MD_mut_standard$A_G.SubstRate.heavy
+## t = 5.9951, df = 17, p-value = 1.448e-05
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.5908667 0.9300795
+## sample estimates:
+##       cor 
+## 0.8239473</code></pre>
+<pre class="r"><code>cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$T_C.SubstRate.heavy, method = &#39;spearman&#39;) ### p = 0.04211 r 0.47</code></pre>
+<pre><code>## Warning in cor.test.default(MD_mut_standard$median.oxyconc,
+## MD_mut_standard$T_C.SubstRate.heavy, : Cannot compute exact p-value with ties</code></pre>
+<pre><code>## 
+##  Spearman&#39;s rank correlation rho
+## 
+## data:  MD_mut_standard$median.oxyconc and MD_mut_standard$T_C.SubstRate.heavy
+## S = 603.76, p-value = 0.04211
+## alternative hypothesis: true rho is not equal to 0
+## sample estimates:
+##       rho 
+## 0.4703818</code></pre>
 <pre class="r"><code>cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$AGTC, method = &#39;spearman&#39;) ### p = 0.23</code></pre>
 <pre><code>## Warning in cor.test.default(MD_mut_standard$median.oxyconc,
 ## MD_mut_standard$AGTC, : Cannot compute exact p-value with ties</code></pre>

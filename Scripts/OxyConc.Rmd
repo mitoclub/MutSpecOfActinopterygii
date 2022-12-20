@@ -81,6 +81,7 @@ MD_mut_standard$AGTC = MD_mut_standard$A_G.SubstRate.heavy / MD_mut_standard$T_C
 ### Perform Spearman r correlation for A>G
 ```{r}
 cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$A_G.SubstRate.heavy, method = 'spearman') ### p = 0.0602
+cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$A_G.SubstRate.heavy, method = 'pearson') ### p = 0.0602
 cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$T_C.SubstRate.heavy, method = 'spearman') ### p = 0.04211 r 0.47
 cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$AGTC, method = 'spearman') ### p = 0.23
 ```
