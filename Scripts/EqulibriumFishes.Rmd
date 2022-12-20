@@ -22,7 +22,11 @@ muttemp = read.table('../data/3results/VertebratePolymorphisms.MutSpecData.txt',
 
 mutSpecAllMean = muttemp %>% group_by(Species, Class, temperature, matur_tm); 
 mutSpecAllMean = mutSpecAllMean %>% 
-  summarise(A_C.SubstRate.heavy=mean(A_C.SubstRate.heavy), 
+  summarise(FrA.heavy=mean(FrA.heavy),
+            FrT.heavy=mean(FrT.heavy),
+            FrG.heavy=mean(FrG.heavy),
+            FrC.heavy=mean(FrC.heavy),
+            A_C.SubstRate.heavy=mean(A_C.SubstRate.heavy), 
             A_G.SubstRate.heavy=mean(A_G.SubstRate.heavy), 
             A_T.SubstRate.heavy=mean(A_T.SubstRate.heavy), 
             C_A.SubstRate.heavy=mean(C_A.SubstRate.heavy), 
@@ -78,8 +82,8 @@ cold = mutSpecAllMean[mutSpecAllMean$temperature <= quant[[1]],]
 warm = mutSpecAllMean[mutSpecAllMean$temperature >= quant[[2]],]
 
 
-cold_fish = apply(as.matrix(cold[,18:29]), 2, mean)
-warm_fish = apply(as.matrix(warm[,18:29]), 2, mean)
+cold_fish = apply(as.matrix(cold[,22:33]), 2, mean)
+warm_fish = apply(as.matrix(warm[,22:33]), 2, mean)
 ```
 
 ### Change to better names
@@ -281,10 +285,10 @@ dev.off()
 ### take data from Valerian's diffur
 
 ```{r}
-expected_cold = data.frame(0.1645046270, 0.2378578262, 0.5271436896, 0.07049385836)
+expected_cold = data.frame(0.1843125066, 0.2036486321, 0.5415029364, 0.07053592541)
 names(expected_cold) =c('FrA','FrG','FrT','FrC')
 
-expected_warm = data.frame(0.1518187869, 0.3236389788, 0.4862288867, 0.03831334710)
+expected_warm = data.frame(0.1570029522, 0.2119039825, 0.5186136993, 0.1124793649)
 names(expected_warm) =c('FrA','FrG','FrT','FrC')
 ```
 
@@ -303,12 +307,11 @@ expected_all = cbind(expected_all, c('FrA','FrG','FrT','FrC','FrA','FrG','FrT','
 colnames(expected_all) = c('expected', 'type_of_fish','mutation')
 ```
 
-
 ### Observed mutations df
 
 ```{r}
-cold_fish = (apply(as.matrix(cold[,21:24]), 2, mean))
-warm_fish = (apply(as.matrix(warm[,21:24]), 2, mean))
+cold_fish = (apply(as.matrix(cold[,5:8]), 2, mean))
+warm_fish = (apply(as.matrix(warm[,5:8]), 2, mean))
 
 observed = cbind(t(as.matrix(cold_fish)), t(as.matrix(warm_fish)))
 observed = t(as.matrix(observed))
