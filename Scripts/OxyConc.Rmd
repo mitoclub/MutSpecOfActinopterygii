@@ -1,0 +1,110 @@
+---
+title: "Oxygen Consumption Analysis"
+author: "Dmitrii Iliushchenko"
+date: "2022-12-20"
+output:
+      html_document:
+      toc: true
+      toc_depth: 3
+      toc_float: true
+      number_section: true
+---
+
+```{r setup, echo=TRUE, message=FALSE}
+rm(list=ls(all=TRUE))
+
+library(dplyr)
+library(ggplot2)
+```
+
+### Read metabolic Data
+```{r}
+MetabolicData = read.csv("../Data/2derived/FishBaseMetabolicData.csv", sep = ";")
+```
+
+### Change ',' to '.' in num format
+
+```{r}
+MetabolicData$OxyCon.mg.kg.h.= gsub(",", ".", MetabolicData$OxyCon.mg.kg.h.)
+MetabolicData$OnyCon.at20C.= gsub(",", ".", MetabolicData$OnyCon.at20C.)
+
+MetabolicData$OxyCon.mg.kg.h.= as.numeric(MetabolicData$OxyCon.mg.kg.h.)
+MetabolicData$OnyCon.at20C.= as.numeric(MetabolicData$OnyCon.at20C.)
+```
+
+### Take only routine and nonspecified
+
+```{r}
+MD_standard  = MetabolicData %>% filter(Activity == 'standard' & Applied_stress == 'none_specified')
+```
+
+### Calculate meadiean Oxygen Cons for species
+```{r}
+MD_standard = MD_standard %>% 
+  group_by(Spece) %>% 
+  mutate(median.oxyconc = median(OxyCon.mg.kg.h.)) %>% 
+  select(Spece,median.oxyconc) %>% 
+  distinct()
+```
+
+### Read Golden Table and calculate Subs rate for one species
+```{r}
+muttemp = read.table('../Data/3results/VertebratePolymorphisms.MutSpecData.txt', header = T)
+
+mutSpecAllMean = muttemp %>% group_by(Species, Class, temperature, matur_tm); 
+mutSpecAllMean = mutSpecAllMean %>% 
+  summarise(
+            A_C.SubstRate.heavy=mean(A_C.SubstRate.heavy), 
+            A_G.SubstRate.heavy=mean(A_G.SubstRate.heavy), 
+            A_T.SubstRate.heavy=mean(A_T.SubstRate.heavy), 
+            C_A.SubstRate.heavy=mean(C_A.SubstRate.heavy), 
+            C_G.SubstRate.heavy=mean(C_G.SubstRate.heavy), 
+            C_T.SubstRate.heavy=mean(C_T.SubstRate.heavy), 
+            G_A.SubstRate.heavy=mean(G_A.SubstRate.heavy), 
+            G_C.SubstRate.heavy=mean(G_C.SubstRate.heavy), 
+            G_T.SubstRate.heavy=mean(G_T.SubstRate.heavy), 
+            T_A.SubstRate.heavy=mean(T_A.SubstRate.heavy), 
+            T_C.SubstRate.heavy=mean(T_C.SubstRate.heavy), 
+            T_G.SubstRate.heavy=mean(T_G.SubstRate.heavy))
+```
+
+### Merge OX data with temperature
+```{r}
+MD_mut_standard = merge(mutSpecAllMean, MD_standard, by.y ='Spece', by.x ='Species')
+```
+
+### Calculate A>G/T>C on heavy chain
+```{r}
+MD_mut_standard$AGTC = MD_mut_standard$A_G.SubstRate.heavy / MD_mut_standard$T_C.SubstRate.heavy
+```
+
+### Perform Spearman r correlation for A>G
+```{r}
+cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$A_G.SubstRate.heavy, method = 'spearman') ### p = 0.0602
+cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$T_C.SubstRate.heavy, method = 'spearman') ### p = 0.04211 r 0.47
+cor.test(MD_mut_standard$median.oxyconc , MD_mut_standard$AGTC, method = 'spearman') ### p = 0.23
+```
+
+### Draw plots with A>G and A>G/C>T
+
+```{r}
+pdf('../Figures/Supplementary_figure_5.pdf')
+ggplot(MD_mut_standard, aes(x = median.oxyconc, y = A_G.SubstRate.heavy, label = 1:19))+
+  geom_point()+
+  theme_bw()+
+  geom_text(hjust=-0.40, vjust=-0.40)+
+  labs(x = 'Median Oxygen Consumption', y = 'Ah to Gh')+
+  geom_smooth(method ="lm", color = 'red',size = 0.6, se=F)
+
+ggplot(MD_mut_standard, aes(x = median.oxyconc, y = AGTC, label= 1:19))+
+  geom_point()+
+  theme_bw()+
+  labs(x = 'Median Oxygen Consumption', y = 'A G / T C')+
+  geom_smooth(method ="lm", color = 'red',size = 0.6, se =F)+
+  geom_text(hjust=-0.4, vjust=0.50)
+
+dev.off()
+```
+
+
+
