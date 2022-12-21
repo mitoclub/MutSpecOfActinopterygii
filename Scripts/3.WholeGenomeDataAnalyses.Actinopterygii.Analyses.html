@@ -1492,9 +1492,9 @@ border-radius: 0px;
 </div>
 
 
-<div id="reading-whole-genomes-database-for-actinopterigii" class="section level1" number="1">
+<div id="reading-whole-genomes-database-for-actinopterigii-light-chain-notation" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Reading whole genomes
-database for Actinopterigii</h1>
+database for Actinopterigii (LIGHT CHAIN NOTATION)</h1>
 <pre class="r"><code>AllSynNuc = read.table(&quot;../data/1raw/AllGenesCodonUsageNoOverlap.txt&quot;, header = TRUE, sep = &#39;\t&#39;)
 AllSynNuc = AllSynNuc[AllSynNuc$Gene != &#39;ND6&#39;,]</code></pre>
 </div>
@@ -1611,9 +1611,55 @@ neutral freqs with time of maturation</h2>
 ##         rho 
 ## -0.06446041</code></pre>
 </div>
-<div id="calculation-of-stg-sacskew" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Calculation of
+<div id="gaskew-tcskew-stg-sacskew" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> GAskew, TCskew,
 STG-SACSkew</h2>
+<pre class="r"><code>AllSynNuc$TtoCSkewH = (AllSynNuc$FrA-AllSynNuc$FrG)/(AllSynNuc$FrA+AllSynNuc$FrG); summary(AllSynNuc$TtoCSkewH)</code></pre>
+<pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## -0.03805  0.66308  0.75815  0.73503  0.82819  0.97140</code></pre>
+<pre class="r"><code>AllSynNuc$GtoASkewH = (AllSynNuc$FrC-AllSynNuc$FrT)/(AllSynNuc$FrT+AllSynNuc$FrC); summary(AllSynNuc$GtoASkewH)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## -0.8805  0.1471  0.2690  0.2532  0.3730  0.8206</code></pre>
+<pre class="r"><code>cor.test(log2(AllSynNuc$temperature),AllSynNuc$TtoCSkewH, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## 
+##  Spearman&#39;s rank correlation rho
+## 
+## data:  log2(AllSynNuc$temperature) and AllSynNuc$TtoCSkewH
+## S = 4632933, p-value = 1.778e-05
+## alternative hypothesis: true rho is not equal to 0
+## sample estimates:
+##       rho 
+## 0.2334734</code></pre>
+<pre class="r"><code>cor.test(log2(AllSynNuc$temperature),AllSynNuc$GtoASkewH, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## 
+##  Spearman&#39;s rank correlation rho
+## 
+## data:  log2(AllSynNuc$temperature) and AllSynNuc$GtoASkewH
+## S = 4959385, p-value = 0.001041
+## alternative hypothesis: true rho is not equal to 0
+## sample estimates:
+##       rho 
+## 0.1794614</code></pre>
+<pre class="r"><code>cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$TtoCSkewH, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## 
+##  Spearman&#39;s rank correlation rho
+## 
+## data:  log2(AllSynNuc$matur_tm) and AllSynNuc$TtoCSkewH
+## S = 1307537, p-value = 0.000564
+## alternative hypothesis: true rho is not equal to 0
+## sample estimates:
+##       rho 
+## 0.2322227</code></pre>
+<pre class="r"><code>cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$GtoASkewH, method = &quot;spearman&quot;)</code></pre>
+<pre><code>## 
+##  Spearman&#39;s rank correlation rho
+## 
+## data:  log2(AllSynNuc$matur_tm) and AllSynNuc$GtoASkewH
+## S = 1697139, p-value = 0.9597
+## alternative hypothesis: true rho is not equal to 0
+## sample estimates:
+##         rho 
+## 0.003450675</code></pre>
 <pre class="r"><code>AllSynNuc$TG = AllSynNuc$FrT+AllSynNuc$FrG
 AllSynNuc$AC = AllSynNuc$FrA+AllSynNuc$FrC
 AllSynNuc$TG_ACSkew = (AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); summary(AllSynNuc$TG_ACSkew)</code></pre>
@@ -1834,6 +1880,52 @@ ggscatter(AllSynNuc, x = &quot;temperature&quot;, y = &quot;FrT&quot;,
 ## Residual standard error: 0.09429 on 331 degrees of freedom
 ## Multiple R-squared:  0.07597,    Adjusted R-squared:  0.07318 
 ## F-statistic: 27.21 on 1 and 331 DF,  p-value: 3.218e-07</code></pre>
+<pre class="r"><code>summary(lm(GtoASkewH ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = GtoASkewH ~ scale(temperature + 2) + scale(matur_tm), 
+##     data = AllSynNuc)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.59112 -0.04943  0.03187  0.08699  0.31324 
+## 
+## Coefficients:
+##                        Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)             0.20311    0.01468  13.832  &lt; 2e-16 ***
+## scale(temperature + 2)  0.04612    0.01485   3.106  0.00233 ** 
+## scale(matur_tm)         0.01452    0.01465   0.991  0.32360    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1619 on 128 degrees of freedom
+##   (202 observations deleted due to missingness)
+## Multiple R-squared:  0.07047,    Adjusted R-squared:  0.05594 
+## F-statistic: 4.852 on 2 and 128 DF,  p-value: 0.009311</code></pre>
+<pre class="r"><code>summary(lm(TtoCSkewH ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = TtoCSkewH ~ scale(temperature + 2) + scale(matur_tm), 
+##     data = AllSynNuc)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.50945 -0.07478  0.01413  0.08168  0.25677 
+## 
+## Coefficients:
+##                        Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)             0.70170    0.01130  62.077  &lt; 2e-16 ***
+## scale(temperature + 2)  0.04000    0.01143   3.500 0.000641 ***
+## scale(matur_tm)         0.04201    0.01128   3.725 0.000292 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1246 on 128 degrees of freedom
+##   (202 observations deleted due to missingness)
+## Multiple R-squared:  0.1408, Adjusted R-squared:  0.1274 
+## F-statistic: 10.49 on 2 and 128 DF,  p-value: 6.043e-05</code></pre>
+<pre class="r"><code>nrow(AllSynNuc[!is.na(AllSynNuc$temperature) &amp; !is.na(AllSynNuc$matur_tm),])</code></pre>
+<pre><code>## [1] 131</code></pre>
 </div>
 <div id="pgls" class="section level1" number="7">
 <h1><span class="header-section-number">7</span> PGLS</h1>

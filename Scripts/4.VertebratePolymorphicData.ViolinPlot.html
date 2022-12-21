@@ -366,6 +366,19 @@ library(&quot;ggpubr&quot;)</code></pre>
 <pre class="r"><code>mutSpec = read.table(&#39;../data/3results/VertebratePolymorphisms.MutSpecData.txt&#39;, header=T)
 mutSpecAllMean = mutSpec %&gt;% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %&gt;% summarise(A_C.SubstRate.heavy=mean(A_C.SubstRate.heavy), A_G.SubstRate.heavy=mean(A_G.SubstRate.heavy), A_T.SubstRate.heavy=mean(A_T.SubstRate.heavy), C_A.SubstRate.heavy=mean(C_A.SubstRate.heavy), C_G.SubstRate.heavy=mean(C_G.SubstRate.heavy), C_T.SubstRate.heavy=mean(C_T.SubstRate.heavy), G_A.SubstRate.heavy=mean(G_A.SubstRate.heavy), G_C.SubstRate.heavy=mean(G_C.SubstRate.heavy), G_T.SubstRate.heavy=mean(G_T.SubstRate.heavy), T_A.SubstRate.heavy=mean(T_A.SubstRate.heavy), T_C.SubstRate.heavy=mean(T_C.SubstRate.heavy), T_G.SubstRate.heavy=mean(T_G.SubstRate.heavy))</code></pre>
 </div>
+<div id="reading-whole-genomes-database-for-actinopterigii" class="section level1">
+<h1>Reading whole genomes database for Actinopterigii</h1>
+<pre class="r"><code>AllSynNuc = read.table(&quot;../data/1raw/AllGenesCodonUsageNoOverlap.txt&quot;, header = TRUE, sep = &#39;\t&#39;)
+AllSynNuc = AllSynNuc[AllSynNuc$Gene != &#39;ND6&#39;,]</code></pre>
+</div>
+<div id="obtaining-neutral-nucleotide-fractions-in-whole-genomes" class="section level1">
+<h1>Obtaining neutral nucleotide fractions in whole genomes</h1>
+<pre class="r"><code>AllSynNuc = aggregate(list(AllSynNuc$NeutralA,AllSynNuc$NeutralT,AllSynNuc$NeutralG,AllSynNuc$NeutralC), by = list(AllSynNuc$Species), FUN = sum)
+names(AllSynNuc) = c(&#39;Species&#39;,&#39;NeutralA&#39;,&#39;NeutralT&#39;,&#39;NeutralG&#39;,&#39;NeutralC&#39;)
+AllSynNuc$FrA = AllSynNuc$NeutralA / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC)
+AllSynNuc$FrT = AllSynNuc$NeutralT / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrG = AllSynNuc$NeutralG / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrC = AllSynNuc$NeutralC / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) </code></pre>
 <div id="anage-data-reading" class="section level2">
 <h2>AnAge data reading</h2>
 <pre class="r"><code>AA = read.table(&quot;../Data/1raw/anage_data.txt&quot;, header = TRUE, sep = &#39;\t&#39;)
@@ -376,7 +389,8 @@ BirbTemp =  read.table(&quot;../Data/1raw/body_temp.txt&quot;, header = TRUE)
 BirbTemp$Class = &quot;Aves&quot;
 
 ALL = merge(mutSpecAllMean, AA, all = T)
-ALL = merge(ALL, BirbTemp, all = T)</code></pre>
+ALL = merge(ALL, BirbTemp, all = T)
+ALL = merge(ALL, AllSynNuc, all = T)</code></pre>
 </div>
 <div id="figures" class="section level2">
 <h2>Figures</h2>
@@ -400,6 +414,14 @@ ggviolin(ALLDIV, x = &quot;Class&quot;, y = &quot;AGdivTC&quot;, select = c(&quo
 <pre><code>## Warning: Transformation introduced infinite values in continuous y-axis</code></pre>
 <pre><code>## Warning: Removed 478 rows containing non-finite values (stat_ydensity).</code></pre>
 <pre><code>## Warning: Removed 478 rows containing non-finite values (stat_boxplot).</code></pre>
+<pre class="r"><code>ggviolin(ALL, x = &quot;Class&quot;, y = &quot;FrT&quot;, select = c(&quot;Actinopterygii&quot;, &quot;Amphibia&quot;, &quot;Reptilia&quot;, &quot;Mammalia&quot;,&quot;Aves&quot;), ylab = &quot;FrA&quot;,
+         order=c(&quot;Actinopterygii&quot;, &quot;Amphibia&quot;, &quot;Reptilia&quot;, &quot;Mammalia&quot;,&quot;Aves&quot;), add = &quot;boxplot&quot;, fill=&quot;Class&quot;, palette=c(&quot;#6760db&quot;, &quot;#7849bf&quot;, &quot;#9145c4&quot;, &quot;#c73a69&quot;, &quot;#c2464c&quot;))</code></pre>
+<pre><code>## Warning: Removed 3961 rows containing non-finite values (stat_ydensity).</code></pre>
+<pre><code>## Warning: Removed 3961 rows containing non-finite values (stat_boxplot).</code></pre>
+<pre class="r"><code>ggviolin(ALL, x = &quot;Class&quot;, y = &quot;FrC&quot;, select = c(&quot;Actinopterygii&quot;, &quot;Amphibia&quot;, &quot;Reptilia&quot;, &quot;Mammalia&quot;,&quot;Aves&quot;), ylab = &quot;FrG&quot;,
+         order=c(&quot;Actinopterygii&quot;, &quot;Amphibia&quot;, &quot;Reptilia&quot;, &quot;Mammalia&quot;,&quot;Aves&quot;), add = &quot;boxplot&quot;, fill=&quot;Class&quot;, palette=c(&quot;#6760db&quot;, &quot;#7849bf&quot;, &quot;#9145c4&quot;, &quot;#c73a69&quot;, &quot;#c2464c&quot;))</code></pre>
+<pre><code>## Warning: Removed 3961 rows containing non-finite values (stat_ydensity).
+## Removed 3961 rows containing non-finite values (stat_boxplot).</code></pre>
 <pre class="r"><code>dev.off()</code></pre>
 <pre><code>## quartz_off_screen 
 ##                 2</code></pre>
@@ -417,6 +439,14 @@ ggviolin(ALLDIV, x = &quot;Class&quot;, y = &quot;AGdivTC&quot;, select = c(&quo
 ##                 26                  7                610                  4 
 ##           Reptilia 
 ##                237</code></pre>
+<pre class="r"><code>table(ALL[!is.na(ALL$FrT),]$Class)</code></pre>
+<pre><code>## 
+##     Actinopterygii           Amphibia               Aves Cephalaspidomorphi 
+##                650                 56                231                  6 
+##     Chondrichthyes          Cladistia           Mammalia Petromyzontiformes 
+##                 60                  7                677                  3 
+##           Reptilia      Sarcopterygii 
+##                157                  4</code></pre>
 <pre class="r"><code>table(ALLDIV[!is.na(ALLDIV$AGdivTC),]$Class)</code></pre>
 <pre><code>## 
 ##     Actinopterygii           Amphibia               Aves   Branchiostomidae 
@@ -451,6 +481,21 @@ wilcox.test(ALL[ALL$Class %in% colder,]$A_G, ALL[ALL$Class %in% warmer,]$A_G.Sub
 ## data:  ALL[ALL$Class %in% colder, ]$Temperature and ALL[ALL$Class %in% warmer, ]$Temperature
 ## W = 14, p-value &lt; 2.2e-16
 ## alternative hypothesis: true location shift is not equal to 0</code></pre>
+<pre class="r"><code>wilcox.test(ALL[ALL$Class %in% colder,]$FrT, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) </code></pre>
+<pre><code>## 
+##  Wilcoxon rank sum test with continuity correction
+## 
+## data:  ALL[ALL$Class %in% colder, ]$FrT and ALL[ALL$Class %in% warmer, ]$Temperature
+## W = 0, p-value &lt; 2.2e-16
+## alternative hypothesis: true location shift is not equal to 0</code></pre>
+<pre class="r"><code>wilcox.test(ALL[ALL$Class %in% colder,]$FrC, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) </code></pre>
+<pre><code>## 
+##  Wilcoxon rank sum test with continuity correction
+## 
+## data:  ALL[ALL$Class %in% colder, ]$FrC and ALL[ALL$Class %in% warmer, ]$Temperature
+## W = 0, p-value &lt; 2.2e-16
+## alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
 </div>
 
 

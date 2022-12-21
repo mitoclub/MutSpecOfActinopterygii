@@ -154,13 +154,13 @@ f1c
 ``` 
 
 
-## correlation of mutspec with time of maturation in fishes
+# correlation of mutspec with time of maturation in fishes
 
 ```{r message=FALSE, warning=FALSE}  
 cor.test(mutSpecAllMean$A_G.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')      
 cor.test(mutSpecAllMean$G_A.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')    
-cor.test(mutSpecAllMean$G_C.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')    
-cor.test(mutSpecAllMean$C_G.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman') 
+cor.test(mutSpecAllMean$T_C.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman')    
+cor.test(mutSpecAllMean$C_T.SubstRate.heavy,mutSpecAllMean$matur_tm, method = 'spearman') 
 ```
 
 # LM
@@ -182,6 +182,7 @@ summary(lm(formula = AGdivTC ~ scale(temperature), data = mutSpecCytBNAzeroomit)
 ## Mean 
 ```{r}
 summary(lm(formula = temperature ~ scale(A_G.SubstRate.heavy) + scale(C_T.SubstRate.heavy), data = mutSpecAllMean))
+summary(lm(formula = matur_tm ~ scale(A_G.SubstRate.heavy) + scale(C_T.SubstRate.heavy), data = mutSpecAllMean))
 summary(lm(formula = A_G.SubstRate.heavy ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
 summary(lm(formula = A_G.SubstRate.heavy ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
 summary(lm(formula = A_G.SubstRate.heavy ~ scale(temperature), data = mutSpecAllMean))
@@ -192,6 +193,11 @@ mutSpecAllMeanNAzeroomit = mutSpecAllMeanNAzeroomit[mutSpecAllMeanNAzeroomit$AGd
 summary(lm(formula = AGdivTC ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
 summary(lm(formula = AGdivTC ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMeanNAzeroomit))
 summary(lm(formula = AGdivTC ~ scale(temperature), data = mutSpecAllMeanNAzeroomit))
+
+summary(lm(formula = C_T.SubstRate.heavy ~ scale(temperature) * scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = C_T.SubstRate.heavy ~ scale(temperature) + scale(matur_tm), data = mutSpecAllMean))
+summary(lm(formula = C_T.SubstRate.heavy ~ scale(temperature), data = mutSpecAllMean))
+
 ``` 
 
 # PGLS 

@@ -26,7 +26,7 @@ library(ggpubr)
 library(dplyr)
 ```
 
-# Reading whole genomes database for Actinopterigii 
+# Reading whole genomes database for Actinopterigii (LIGHT CHAIN NOTATION)
 
 ```{r}
 AllSynNuc = read.table("../data/1raw/AllGenesCodonUsageNoOverlap.txt", header = TRUE, sep = '\t')
@@ -71,8 +71,15 @@ cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrG, method = "spearman")
 cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrC, method = "spearman")  
 ```
 
-## Calculation of STG-SACSkew
+## GAskew, TCskew, STG-SACSkew
 ```{r message=FALSE, warning=FALSE}
+AllSynNuc$TtoCSkewH = (AllSynNuc$FrA-AllSynNuc$FrG)/(AllSynNuc$FrA+AllSynNuc$FrG); summary(AllSynNuc$TtoCSkewH)
+AllSynNuc$GtoASkewH = (AllSynNuc$FrC-AllSynNuc$FrT)/(AllSynNuc$FrT+AllSynNuc$FrC); summary(AllSynNuc$GtoASkewH)
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$TtoCSkewH, method = "spearman")
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$GtoASkewH, method = "spearman")
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$TtoCSkewH, method = "spearman")
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$GtoASkewH, method = "spearman")
+
 AllSynNuc$TG = AllSynNuc$FrT+AllSynNuc$FrG
 AllSynNuc$AC = AllSynNuc$FrA+AllSynNuc$FrC
 AllSynNuc$TG_ACSkew = (AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); summary(AllSynNuc$TG_ACSkew)
@@ -128,10 +135,14 @@ summary(lm(FrT ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
 summary(lm(FrG ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
 summary(lm(FrA ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
 
+
+
 summary(lm(AC_TGSkew ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
 summary(lm(AC_TGSkew ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))# ###PICS
 summary(lm(AC_TGSkew ~ temperature, data = AllSynNuc))
-
+summary(lm(GtoASkewH ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))
+summary(lm(TtoCSkewH ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))
+nrow(AllSynNuc[!is.na(AllSynNuc$temperature) & !is.na(AllSynNuc$matur_tm),])
 ``` 
 
 # PGLS

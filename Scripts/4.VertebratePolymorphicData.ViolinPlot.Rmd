@@ -22,6 +22,23 @@ mutSpec = read.table('../data/3results/VertebratePolymorphisms.MutSpecData.txt',
 mutSpecAllMean = mutSpec %>% group_by(Species, Class, temperature, matur_tm); mutSpecAllMean = mutSpecAllMean %>% summarise(A_C.SubstRate.heavy=mean(A_C.SubstRate.heavy), A_G.SubstRate.heavy=mean(A_G.SubstRate.heavy), A_T.SubstRate.heavy=mean(A_T.SubstRate.heavy), C_A.SubstRate.heavy=mean(C_A.SubstRate.heavy), C_G.SubstRate.heavy=mean(C_G.SubstRate.heavy), C_T.SubstRate.heavy=mean(C_T.SubstRate.heavy), G_A.SubstRate.heavy=mean(G_A.SubstRate.heavy), G_C.SubstRate.heavy=mean(G_C.SubstRate.heavy), G_T.SubstRate.heavy=mean(G_T.SubstRate.heavy), T_A.SubstRate.heavy=mean(T_A.SubstRate.heavy), T_C.SubstRate.heavy=mean(T_C.SubstRate.heavy), T_G.SubstRate.heavy=mean(T_G.SubstRate.heavy))
 ```
 
+# Reading whole genomes database for Actinopterigii 
+
+```{r}
+AllSynNuc = read.table("../data/1raw/AllGenesCodonUsageNoOverlap.txt", header = TRUE, sep = '\t')
+AllSynNuc = AllSynNuc[AllSynNuc$Gene != 'ND6',]
+```
+
+# Obtaining neutral nucleotide fractions in whole genomes
+```{r message=FALSE}
+AllSynNuc = aggregate(list(AllSynNuc$NeutralA,AllSynNuc$NeutralT,AllSynNuc$NeutralG,AllSynNuc$NeutralC), by = list(AllSynNuc$Species), FUN = sum)
+names(AllSynNuc) = c('Species','NeutralA','NeutralT','NeutralG','NeutralC')
+AllSynNuc$FrA = AllSynNuc$NeutralA / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC)
+AllSynNuc$FrT = AllSynNuc$NeutralT / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrG = AllSynNuc$NeutralG / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrC = AllSynNuc$NeutralC / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+```
+
 ## AnAge data reading
 ```{r}
 AA = read.table("../Data/1raw/anage_data.txt", header = TRUE, sep = '\t')
@@ -33,6 +50,8 @@ BirbTemp$Class = "Aves"
 
 ALL = merge(mutSpecAllMean, AA, all = T)
 ALL = merge(ALL, BirbTemp, all = T)
+ALL = merge(ALL, AllSynNuc, all = T)
+
 ```
 
 ## Figures
@@ -45,10 +64,15 @@ ggviolin(ALL, x = "Class", y = "A_G.SubstRate.heavy", select = c("Actinopterygii
 ALLDIV = ALL[!is.na(ALL$A_G.SubstRate.heavy),]; ALLDIV$AGdivTC=ALLDIV$A_G.SubstRate.heavy/ALLDIV$T_C.SubstRate.heavy; ALLDIV[ALLDIV$AGdivTC == "Inf" | ALLDIV$AGdivTC == "NaN" | ALLDIV$AGdivTC == 0,]$AGdivTC  = NA; ALLDIV$AGdivTC = log2(ALLDIV$AGdivTC)
 ggviolin(ALLDIV, x = "Class", y = "AGdivTC", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "AH>GH div TH>CH",
          order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"), yscale = "log2")
+ggviolin(ALL, x = "Class", y = "FrT", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrA",
+         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
+ggviolin(ALL, x = "Class", y = "FrC", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrG",
+         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
 dev.off()
 
 table(ALL[!is.na(ALL$temperature),]$Class)
 table(ALL[!is.na(ALL$A_G.SubstRate.heavy),]$Class)
+table(ALL[!is.na(ALL$FrT),]$Class)
 table(ALLDIV[!is.na(ALLDIV$AGdivTC),]$Class)
 ```
 
@@ -59,4 +83,6 @@ warmer <- c("Mammalia","Aves")
 wilcox.test(ALL[ALL$Class %in% colder,]$A_G, ALL[ALL$Class %in% warmer,]$A_G.SubstRate.heavy, paired=F) 
 wilcox.test(ALLDIV[ALLDIV$Class %in% colder,]$AGdivTC, ALLDIV[ALLDIV$Class %in% warmer,]$AGdivTC, paired=F)
 wilcox.test(ALL[ALL$Class %in% colder,]$Temperature, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrT, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrC, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
 ```

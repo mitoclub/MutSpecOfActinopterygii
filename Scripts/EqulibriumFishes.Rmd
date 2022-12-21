@@ -77,9 +77,9 @@ mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]
 ```{r}
 quant = quantile(mutSpecAllMean$temperature, probs = c(0.1, 0.9))
 
-cold = mutSpecAllMean[mutSpecAllMean$temperature <= quant[[1]],]
+cold = mutSpecAllMean[mutSpecAllMean$temperature <= quant[[1]],]; nrow(cold)
 
-warm = mutSpecAllMean[mutSpecAllMean$temperature >= quant[[2]],]
+warm = mutSpecAllMean[mutSpecAllMean$temperature >= quant[[2]],]; nrow(warm)
 
 
 cold_fish = apply(as.matrix(cold[,22:33]), 2, mean)
