@@ -37,10 +37,10 @@ AllSynNuc = AllSynNuc[AllSynNuc$Gene != 'ND6',]
 ```{r message=FALSE}
 AllSynNuc = aggregate(list(AllSynNuc$NeutralA,AllSynNuc$NeutralT,AllSynNuc$NeutralG,AllSynNuc$NeutralC), by = list(AllSynNuc$Species), FUN = sum)
 names(AllSynNuc) = c('Species','NeutralA','NeutralT','NeutralG','NeutralC')
-AllSynNuc$FrA = AllSynNuc$NeutralA / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC)
-AllSynNuc$FrT = AllSynNuc$NeutralT / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
-AllSynNuc$FrG = AllSynNuc$NeutralG / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
-AllSynNuc$FrC = AllSynNuc$NeutralC / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrT.heavy = AllSynNuc$NeutralA / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC)
+AllSynNuc$FrA.heavy = AllSynNuc$NeutralT / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrC.heavy = AllSynNuc$NeutralG / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrG.heavy = AllSynNuc$NeutralC / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
 ```
 
 # Merging neutral freqs with time of maturation and temperature
@@ -57,92 +57,100 @@ nrow(AllSynNuc[!is.na(AllSynNuc$temperature),])
 # Correlations of neutral freqs with temperature
 ## Correlation of neutral freqs with temperature
 ```{r message=FALSE, warning=FALSE}  
-cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrA, method = "spearman")
-cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrT, method = "spearman")
-cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrG, method = "spearman")
-cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrC, method = "spearman")  
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrA.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrT.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrG.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$FrC.heavy, method = "spearman")  
 ```
 
 ## Correlation of neutral freqs with time of maturation
 ```{r message=FALSE, warning=FALSE}  
-cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrA, method = "spearman")
-cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrT, method = "spearman")
-cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrG, method = "spearman")
-cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrC, method = "spearman")  
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrA.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrT.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrG.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$FrC.heavy, method = "spearman")  
 ```
 
 ## GAskew, TCskew, STG-SACSkew
 ```{r message=FALSE, warning=FALSE}
-AllSynNuc$TtoCSkewH = (AllSynNuc$FrA-AllSynNuc$FrG)/(AllSynNuc$FrA+AllSynNuc$FrG); summary(AllSynNuc$TtoCSkewH)
-AllSynNuc$GtoASkewH = (AllSynNuc$FrC-AllSynNuc$FrT)/(AllSynNuc$FrT+AllSynNuc$FrC); summary(AllSynNuc$GtoASkewH)
-cor.test(log2(AllSynNuc$temperature),AllSynNuc$TtoCSkewH, method = "spearman")
-cor.test(log2(AllSynNuc$temperature),AllSynNuc$GtoASkewH, method = "spearman")
-cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$TtoCSkewH, method = "spearman")
-cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$GtoASkewH, method = "spearman")
+AllSynNuc$TtoCSkew.heavy = (AllSynNuc$FrT.heavy-AllSynNuc$FrC.heavy)/(AllSynNuc$FrT.heavy+AllSynNuc$FrC.heavy); summary(AllSynNuc$TtoCSkew.heavy)
+AllSynNuc$GtoASkew.heavy = (AllSynNuc$FrG.heavy-AllSynNuc$FrA.heavy)/(AllSynNuc$FrG.heavy+AllSynNuc$FrA.heavy); summary(AllSynNuc$GtoASkew.heavy)
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$TtoCSkew.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$temperature),AllSynNuc$GtoASkew.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$TtoCSkew.heavy, method = "spearman")
+cor.test(log2(AllSynNuc$matur_tm),AllSynNuc$GtoASkew.heavy, method = "spearman")
 
-AllSynNuc$TG = AllSynNuc$FrT+AllSynNuc$FrG
-AllSynNuc$AC = AllSynNuc$FrA+AllSynNuc$FrC
-AllSynNuc$TG_ACSkew = (AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); summary(AllSynNuc$TG_ACSkew)
-AllSynNuc$AC_TGSkew = -(AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); summary(AllSynNuc$AC_TGSkew) #OUR
+AllSynNuc$TG = AllSynNuc$FrT.heavy+AllSynNuc$FrG.heavy
+AllSynNuc$AC = AllSynNuc$FrA.heavy+AllSynNuc$FrC.heavy
+AllSynNuc$TG_ACSkew.heavy = (AllSynNuc$TG-AllSynNuc$AC)/(AllSynNuc$TG+AllSynNuc$AC); summary(AllSynNuc$TG_ACSkew.heavy)
 ```
 
 # Figures
 ```{r message=FALSE, warning= FALSE}
 AllSynNuc = AllSynNuc[!is.na(AllSynNuc$temperature),]; N = as.character(paste("N", nrow(AllSynNuc), sep="")) #delete NA
-ggscatter(AllSynNuc, x = "temperature", y = "FrT",
+ggscatter(AllSynNuc, x = "temperature", y = "FrA.heavy",
           color = "#e61a0b", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of A")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of AH")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 
-ggscatter(AllSynNuc, x = "temperature", y = "FrG",
+ggscatter(AllSynNuc, x = "temperature", y = "FrC.heavy",
           color = "#009414", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of C")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of CH")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 
-ggscatter(AllSynNuc, x = "temperature", y = "FrC",
+ggscatter(AllSynNuc, x = "temperature", y = "FrG.heavy",
           color = "#5c5c5c", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of G")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of GH")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 
-ggscatter(AllSynNuc, x = "temperature", y = "FrA",
+ggscatter(AllSynNuc, x = "temperature", y = "FrT.heavy",
           color = "#0918e6", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of T")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          xlab="Median annual water temperature, ?C", ylab="Whole genome neutral fraction of TH")+stat_cor(method = "spearman", aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 ```
 
 ```{r message=FALSE, warning= FALSE}
-ggscatter(AllSynNuc, x = "temperature", y = "AC_TGSkew",
+ggscatter(AllSynNuc, x = "temperature", y = "TG_ACSkew.heavy",
           color = "#c99bc9", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
           conf.int = TRUE, # Add confidence interval
-          xlab="Mean annual water temperature, ?C", ylab="STG-SAC skew", ylim=c(0.1, 0.65), xlim=c(0,30))+stat_cor(method = "spearman", label.x = 2.5, label.y = 0.64, aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
+          xlab="Mean annual water temperature, ?C",  ylim=c(0.1, 0.65), xlim=c(0,30))+stat_cor(method = "spearman", label.x = 2.5, label.y = 0.64, aes(label = paste(..r.label.., ..p.label.., ..N.., sep = "~`,`~")))
 ```
 
 # LM
 ```{r}
-summary(lm(FrT ~ scale(temperature)+scale(matur_tm), data = AllSynNuc))
-summary(lm(FrT ~ log2(temperature + 2)*log2(matur_tm), data = AllSynNuc))  # keep it for presentation!!!
-summary(lm(FrT ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
-summary(lm(FrG ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
-summary(lm(FrA ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
+summary(lm(FrA.heavy ~ scale(temperature)+scale(matur_tm), data = AllSynNuc))
+summary(lm(FrA.heavy ~ log2(temperature + 2)*log2(matur_tm), data = AllSynNuc))  # keep it for presentation!!!
+summary(lm(FrA.heavy ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
+summary(lm(FrC.heavy ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
+summary(lm(FrA.heavy ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc)) # strong
 
 
 
-summary(lm(AC_TGSkew ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
-summary(lm(AC_TGSkew ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))# ###PICS
-summary(lm(AC_TGSkew ~ temperature, data = AllSynNuc))
-summary(lm(GtoASkewH ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))
-summary(lm(TtoCSkewH ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))
+summary(lm(TG_ACSkew.heavy ~ log2(temperature + 2)+log2(matur_tm), data = AllSynNuc))
+summary(lm(TG_ACSkew.heavy ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))# ###PICS
+summary(lm(TG_ACSkew.heavy ~ temperature, data = AllSynNuc))
+summary(lm(GtoASkew.heavy ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))
+summary(lm(TtoCSkew.heavy ~ scale(temperature + 2)+scale(matur_tm), data = AllSynNuc))
+summary(lm(GtoASkew.heavy ~ scale(temperature + 2)*scale(matur_tm), data = AllSynNuc))
+summary(lm(TtoCSkew.heavy ~ scale(temperature + 2)*scale(matur_tm), data = AllSynNuc))
 nrow(AllSynNuc[!is.na(AllSynNuc$temperature) & !is.na(AllSynNuc$matur_tm),])
+
+
+summary(lm(temperature ~ GtoASkew.heavy +TtoCSkew.heavy, data = AllSynNuc))
+summary(lm(matur_tm ~ GtoASkew.heavy +TtoCSkew.heavy, data = AllSynNuc))
+summary(lm(temperature ~ scale(GtoASkew.heavy) +scale(TtoCSkew.heavy), data = AllSynNuc))
+summary(lm(matur_tm ~ scale(GtoASkew.heavy) +scale(TtoCSkew.heavy), data = AllSynNuc))
+
 ``` 
 
 # PGLS
@@ -154,17 +162,24 @@ tree_pruned = treedata(tree, AllSynNuc, sort=T, warnings=T)$phy
 
 data<-as.data.frame(treedata(tree_pruned, AllSynNuc, sort=T, warnings=T)$data)
 data$Species = as.character(data$Species)
-data$AC_TGSkew = as.numeric(as.character(data$AC_TGSkew))
+data$TG_ACSkew.heavy = as.numeric(as.character(data$TG_ACSkew.heavy))
+data$GtoASkew.heavy = as.numeric(as.character(data$GtoASkew.heavy))
+data$TtoCSkew.heavy = as.numeric(as.character(data$TtoCSkew.heavy))
 data$temperature = as.numeric(as.character(data$temperature))
 data$matur_tm = as.numeric(as.character(data$matur_tm))
 data_comp <- comparative.data(tree_pruned, data, Species, vcv=TRUE)
 
-summary(pgls(AC_TGSkew ~ log2(temperature+2), data_comp, lambda="ML"))
-summary(pgls(log2(temperature+2) ~ AC_TGSkew, data_comp, lambda="ML"))
-summary(pgls(AC_TGSkew ~ scale(temperature), data_comp, lambda="ML"))
-summary(pgls(AC_TGSkew ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
-summary(pgls(AC_TGSkew ~ temperature, data_comp, lambda="ML"))
-summary(pgls(AC_TGSkew ~ temperature + matur_tm, data_comp, lambda="ML"))
+
+summary(pgls(TG_ACSkew.heavy ~ log2(temperature+2), data_comp, lambda="ML"))
+summary(pgls(log2(temperature+2) ~ TG_ACSkew.heavy, data_comp, lambda="ML"))
+summary(pgls(TG_ACSkew.heavy ~ scale(temperature), data_comp, lambda="ML"))
+summary(pgls(TG_ACSkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
+summary(pgls(TG_ACSkew.heavy ~ temperature, data_comp, lambda="ML"))
+summary(pgls(TG_ACSkew.heavy ~ temperature + matur_tm, data_comp, lambda="ML"))
+summary(pgls(TtoCSkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
+summary(pgls(GtoASkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
+summary(pgls(TtoCSkew.heavy ~ log2(temperature + 2) * log2(matur_tm), data_comp, lambda="ML"))
+summary(pgls(GtoASkew.heavy ~ log2(temperature + 2) * log2(matur_tm), data_comp, lambda="ML"))
 ```
 
 #Figures
@@ -175,10 +190,10 @@ AllSynNuc$Longevity = "Na"
 AllSynNuc[AllSynNuc$matur_tm < medianTm,]$Longevity = "ShortLived"
 AllSynNuc[AllSynNuc$matur_tm >= medianTm,]$Longevity = "LongLived"
 
-plot(AllSynNuc[AllSynNuc$Longevity == "ShortLived",]$temperature, AllSynNuc[AllSynNuc$Longevity == "ShortLived",]$AC_TGSkew, col="#4da36c", xlab="Mean annual water temperature, C?", ylab="STG-SAC skew", ylim=c(0.1, 0.65), xlim=c(0,30), pch = 16)
+plot(AllSynNuc[AllSynNuc$Longevity == "ShortLived",]$temperature, AllSynNuc[AllSynNuc$Longevity == "ShortLived",]$TG_ACSkew.heavy, col="#4da36c", xlab="Mean annual water temperature, C?", ylab="STG-SAC skew", ylim=c(0.1, 0.65), xlim=c(0,30), pch = 16)
 abline((0.331911-0.049196), 0.006172, col="#4da36c", lwd = 2)
 par(new=TRUE)
-plot(AllSynNuc[AllSynNuc$Longevity == "LongLived",]$temperature, AllSynNuc[AllSynNuc$Longevity == "LongLived",]$AC_TGSkew, col="#42cbf5", xlab="", ylab="", ylim=c(0.1, 0.65), xlim=c(0,30), pch = 16)
+plot(AllSynNuc[AllSynNuc$Longevity == "LongLived",]$temperature, AllSynNuc[AllSynNuc$Longevity == "LongLived",]$TG_ACSkew.heavy, col="#42cbf5", xlab="", ylab="", ylim=c(0.1, 0.65), xlim=c(0,30), pch = 16)
 abline(0.331911, 0.006172, col="#42cbf5", lwd = 2)
 legend("bottomright", legend=c( "Short time of maturation","Long time of maturation"), col=c("#4da36c","#42cbf5"), pch = 16)
 ```

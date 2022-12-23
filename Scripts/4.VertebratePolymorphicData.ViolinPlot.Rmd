@@ -70,6 +70,11 @@ ggviolin(ALL, x = "Class", y = "FrC", select = c("Actinopterygii", "Amphibia", "
          order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
 dev.off()
 
+ggviolin(ALL, x = "Class", y = "FrA", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrT",
+         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
+ggviolin(ALL, x = "Class", y = "FrG", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrC",
+         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
+
 table(ALL[!is.na(ALL$temperature),]$Class)
 table(ALL[!is.na(ALL$A_G.SubstRate.heavy),]$Class)
 table(ALL[!is.na(ALL$FrT),]$Class)
@@ -85,4 +90,7 @@ wilcox.test(ALLDIV[ALLDIV$Class %in% colder,]$AGdivTC, ALLDIV[ALLDIV$Class %in% 
 wilcox.test(ALL[ALL$Class %in% colder,]$Temperature, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
 wilcox.test(ALL[ALL$Class %in% colder,]$FrT, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
 wilcox.test(ALL[ALL$Class %in% colder,]$FrC, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrA, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrG, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
+
 ```
