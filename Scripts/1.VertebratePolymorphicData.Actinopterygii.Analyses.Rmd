@@ -140,7 +140,7 @@ f1b
 ```   
 
 ```{r message=FALSE, warning= FALSE}
-pdf('../Figures/PolymorphicData.Actinopterygii.pdf')
+pdf('../Figures/PolymorphicData.Actinopterygii.A_GdivT_C.pdf')
 f1c = ggscatter(mutSpecAllMean, x = "temperature", y = "AGdivTC",
           color = "#814194", # Points color, shape and size
           add = "reg.line",  # Add regressin line
