@@ -51,13 +51,12 @@ matur = read.table('../Data/1raw/FishBaseMaturity_Tm.txt', header=T)
 matur = matur %>% group_by(Species) %>% summarise(matur_tm = median(Tm))
 AllSynNuc = merge(AllSynNuc, tm, by='Species', all.x=T)
 AllSynNuc = merge(AllSynNuc, matur, by='Species', all.x=T)
-nrow(AllSynNuc[!is.na(AllSynNuc$temperature),])
-nrow(AllSynNuc[!is.na(AllSynNuc$matur_tm),])
 ```
 
 # Correlations of neutral freqs with temperature
 ## Correlation of neutral freqs with temperature
 ```{r message=FALSE, warning=FALSE}  
+nrow(AllSynNuc[!is.na(AllSynNuc$FrA.heavy) & !is.na(AllSynNuc$temperature),])
 cor.test(AllSynNuc$temperature,AllSynNuc$FrA.heavy, method = "spearman")
 cor.test(AllSynNuc$temperature,AllSynNuc$FrT.heavy, method = "spearman")
 cor.test(AllSynNuc$temperature,AllSynNuc$FrG.heavy, method = "spearman")
@@ -66,6 +65,7 @@ cor.test(AllSynNuc$temperature,AllSynNuc$FrC.heavy, method = "spearman")
 
 ## Correlation of neutral freqs with time of maturation
 ```{r message=FALSE, warning=FALSE}  
+nrow(AllSynNuc[!is.na(AllSynNuc$FrA.heavy) & !is.na(AllSynNuc$matur_tm),])
 cor.test(AllSynNuc$matur_tm,AllSynNuc$FrA.heavy, method = "spearman")
 cor.test(AllSynNuc$matur_tm,AllSynNuc$FrT.heavy, method = "spearman")
 cor.test(AllSynNuc$matur_tm,AllSynNuc$FrG.heavy, method = "spearman")
@@ -76,8 +76,11 @@ cor.test(AllSynNuc$matur_tm,AllSynNuc$FrC.heavy, method = "spearman")
 ```{r message=FALSE, warning=FALSE}
 AllSynNuc$TtoCSkew.heavy = (AllSynNuc$FrT.heavy-AllSynNuc$FrC.heavy)/(AllSynNuc$FrT.heavy+AllSynNuc$FrC.heavy)
 AllSynNuc$GtoASkew.heavy = (AllSynNuc$FrG.heavy-AllSynNuc$FrA.heavy)/(AllSynNuc$FrG.heavy+AllSynNuc$FrA.heavy)
+
+nrow(AllSynNuc[!is.na(AllSynNuc$GtoASkew.heavy) & !is.na(AllSynNuc$temperature),])
 cor.test(AllSynNuc$temperature,AllSynNuc$TtoCSkew.heavy, method = "spearman")
 cor.test(AllSynNuc$temperature,AllSynNuc$GtoASkew.heavy, method = "spearman")
+nrow(AllSynNuc[!is.na(AllSynNuc$GtoASkew.heavy) & !is.na(AllSynNuc$matur_tm),])
 cor.test(AllSynNuc$matur_tm,AllSynNuc$TtoCSkew.heavy, method = "spearman")
 cor.test(AllSynNuc$matur_tm,AllSynNuc$GtoASkew.heavy, method = "spearman")
 
@@ -144,6 +147,12 @@ f5
 summary(lm(GtoASkew.heavy ~ temperature, data = AllSynNuc))
 summary(lm(TtoCSkew.heavy ~ temperature, data = AllSynNuc))
 summary(lm(TG_ACSkew.heavy ~ temperature, data = AllSynNuc))
+summary(lm(GtoASkew.heavy ~ matur_tm, data = AllSynNuc))
+summary(lm(TtoCSkew.heavy ~ matur_tm, data = AllSynNuc))
+summary(lm(TG_ACSkew.heavy ~ matur_tm, data = AllSynNuc))
+
+
+nrow(AllSynNuc[!is.na(AllSynNuc$TG_ACSkew.heavy) & !is.na(AllSynNuc$temperature)& ! is.na(AllSynNuc$matur_tm),])
 
 summary(lm(FrA.heavy ~ scale(temperature)+scale(matur_tm), data = AllSynNuc))
 summary(lm(FrA.heavy ~ log2(temperature + 2)*log2(matur_tm), data = AllSynNuc))  
@@ -192,15 +201,12 @@ summary(pgls(GtoASkew.heavy ~ temperature, data_comp, lambda="ML"))
 summary(pgls(TtoCSkew.heavy ~ temperature, data_comp, lambda="ML"))
 summary(pgls(TG_ACSkew.heavy ~ temperature, data_comp, lambda="ML"))
 
-summary(pgls(log2(temperature+2) ~ TG_ACSkew.heavy, data_comp, lambda="ML"))
-summary(pgls(TG_ACSkew.heavy ~ scale(temperature), data_comp, lambda="ML"))
-summary(pgls(TG_ACSkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
-summary(pgls(TG_ACSkew.heavy ~ temperature, data_comp, lambda="ML"))
-summary(pgls(TG_ACSkew.heavy ~ temperature + matur_tm, data_comp, lambda="ML"))
-summary(pgls(TtoCSkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
 summary(pgls(GtoASkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
-summary(pgls(TtoCSkew.heavy ~ log2(temperature + 2) * log2(matur_tm), data_comp, lambda="ML"))
-summary(pgls(GtoASkew.heavy ~ log2(temperature + 2) * log2(matur_tm), data_comp, lambda="ML"))
+summary(pgls(TtoCSkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
+summary(pgls(TG_ACSkew.heavy ~ log2(temperature + 2) + log2(matur_tm), data_comp, lambda="ML"))
+
+summary(pgls(temperature ~ scale(GtoASkew.heavy) + scale(TtoCSkew.heavy), data_comp, lambda="ML"))
+summary(pgls(matur_tm ~ scale(GtoASkew.heavy) + scale(TtoCSkew.heavy), data_comp, lambda="ML"))
 ```
 
 #Figures
