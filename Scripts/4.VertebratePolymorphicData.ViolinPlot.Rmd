@@ -33,10 +33,10 @@ AllSynNuc = AllSynNuc[AllSynNuc$Gene != 'ND6',]
 ```{r message=FALSE}
 AllSynNuc = aggregate(list(AllSynNuc$NeutralA,AllSynNuc$NeutralT,AllSynNuc$NeutralG,AllSynNuc$NeutralC), by = list(AllSynNuc$Species), FUN = sum)
 names(AllSynNuc) = c('Species','NeutralA','NeutralT','NeutralG','NeutralC')
-AllSynNuc$FrA = AllSynNuc$NeutralA / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC)
-AllSynNuc$FrT = AllSynNuc$NeutralT / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
-AllSynNuc$FrG = AllSynNuc$NeutralG / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
-AllSynNuc$FrC = AllSynNuc$NeutralC / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrTheavy = AllSynNuc$NeutralA / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC)
+AllSynNuc$FrAheavy = AllSynNuc$NeutralT / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrCheavy = AllSynNuc$NeutralG / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
+AllSynNuc$FrGheavy = AllSynNuc$NeutralC / (AllSynNuc$NeutralA + AllSynNuc$NeutralT + AllSynNuc$NeutralG + AllSynNuc$NeutralC) 
 ```
 
 ## AnAge data reading
@@ -64,20 +64,15 @@ ggviolin(ALL, x = "Class", y = "A_G.SubstRate.heavy", select = c("Actinopterygii
 ALLDIV = ALL[!is.na(ALL$A_G.SubstRate.heavy),]; ALLDIV$AGdivTC=ALLDIV$A_G.SubstRate.heavy/ALLDIV$T_C.SubstRate.heavy; ALLDIV[ALLDIV$AGdivTC == "Inf" | ALLDIV$AGdivTC == "NaN" | ALLDIV$AGdivTC == 0,]$AGdivTC  = NA; ALLDIV$AGdivTC = log2(ALLDIV$AGdivTC)
 ggviolin(ALLDIV, x = "Class", y = "AGdivTC", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "AH>GH div TH>CH",
          order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"), yscale = "log2")
-ggviolin(ALL, x = "Class", y = "FrT", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrA",
+ggviolin(ALL, x = "Class", y = "FrAheavy", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrA",
          order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
-ggviolin(ALL, x = "Class", y = "FrC", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrG",
+ggviolin(ALL, x = "Class", y = "FrGheavy", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrG",
          order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
 dev.off()
 
-ggviolin(ALL, x = "Class", y = "FrA", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrT",
-         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
-ggviolin(ALL, x = "Class", y = "FrG", select = c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), ylab = "FrC",
-         order=c("Actinopterygii", "Amphibia", "Reptilia", "Mammalia","Aves"), add = "boxplot", fill="Class", palette=c("#6760db", "#7849bf", "#9145c4", "#c73a69", "#c2464c"))
-
 table(ALL[!is.na(ALL$temperature),]$Class)
 table(ALL[!is.na(ALL$A_G.SubstRate.heavy),]$Class)
-table(ALL[!is.na(ALL$FrT),]$Class)
+table(ALL[!is.na(ALL$FrAheavy),]$Class)
 table(ALLDIV[!is.na(ALLDIV$AGdivTC),]$Class)
 ```
 
@@ -88,9 +83,9 @@ warmer <- c("Mammalia","Aves")
 wilcox.test(ALL[ALL$Class %in% colder,]$A_G, ALL[ALL$Class %in% warmer,]$A_G.SubstRate.heavy, paired=F) 
 wilcox.test(ALLDIV[ALLDIV$Class %in% colder,]$AGdivTC, ALLDIV[ALLDIV$Class %in% warmer,]$AGdivTC, paired=F)
 wilcox.test(ALL[ALL$Class %in% colder,]$Temperature, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
-wilcox.test(ALL[ALL$Class %in% colder,]$FrT, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
-wilcox.test(ALL[ALL$Class %in% colder,]$FrC, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
-wilcox.test(ALL[ALL$Class %in% colder,]$FrA, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
-wilcox.test(ALL[ALL$Class %in% colder,]$FrG, ALL[ALL$Class %in% warmer,]$Temperature, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrTheavy, ALL[ALL$Class %in% warmer,]$FrTheavy, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrCheavy, ALL[ALL$Class %in% warmer,]$FrCheavy, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrAheavy, ALL[ALL$Class %in% warmer,]$FrAheavy, paired=F) 
+wilcox.test(ALL[ALL$Class %in% colder,]$FrGheavy, ALL[ALL$Class %in% warmer,]$FrGheavy, paired=F) 
 
 ```
