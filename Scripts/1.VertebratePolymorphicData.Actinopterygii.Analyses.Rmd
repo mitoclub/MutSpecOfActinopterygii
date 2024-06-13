@@ -115,7 +115,7 @@ cor.test(mutSpecAllMean$CTdivGA,mutSpecAllMean$temperature, method = 'spearman')
 
 ```{r message=FALSE, warning= FALSE}
 mutSpecAllMean = mutSpecAllMean[!is.na(mutSpecAllMean$temperature),]; N = as.character(paste("N", nrow(mutSpecAllMean), sep="")) #delete NA
-pdf('../Figures/PolymorphicData.Actinopterygii.pdf')
+pdf('../Figures/PolymorphicData.Actinopterygii.pdf',  width = 7, height = 7)
 f1a = ggscatter(mutSpecAllMean, x = "temperature", y = "A_G.SubstRate.heavy",
           color = "#73514f", # Points color, shape and size
           add = "reg.line",  # Add regressin line
@@ -140,7 +140,7 @@ f1b
 ```   
 
 ```{r message=FALSE, warning= FALSE}
-pdf('../Figures/PolymorphicData.Actinopterygii.A_GdivT_C.pdf')
+pdf('../Figures/PolymorphicData.Actinopterygii.A_GdivT_C.pdf', width = 7, height = 7)
 f1c = ggscatter(mutSpecAllMean, x = "temperature", y = "AGdivTC",
           color = "#814194", # Points color, shape and size
           add = "reg.line",  # Add regressin line

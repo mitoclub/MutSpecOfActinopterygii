@@ -130,8 +130,8 @@ f4
 ```
 
 ```{r message=FALSE, warning= FALSE}
-pdf("../Figures/WholeGenomeData.Actinopterygii.TG-SACskew.pdf", width = 7, height = 8.5)
-f5=ggscatter(AllSynNuc, x = "temperature", y = "TG_ACSkew.heavy",
+pdf("../Figures/WholeGenomeData.Actinopterygii.GAskew.pdf", width = 7, height = 7)
+f5=ggscatter(AllSynNuc, x = "temperature", y = "GtoASkew.heavy",
           color = "#c99bc9", # Points color, shape and size
           add = "reg.line",  # Add regressin line
           add.params = list(color = "black", fill = "lightgray"), # Customize reg. line
@@ -210,7 +210,7 @@ summary(pgls(matur_tm ~ scale(GtoASkew.heavy) + scale(TtoCSkew.heavy), data_comp
 ```
 
 #Figures
-```{r}
+```{r, echo=FALSE, fig.show='hide'}
 AllSynNuc = AllSynNuc[!is.na(AllSynNuc$matur_tm),]; N = as.character(paste("N", nrow(AllSynNuc), sep=""))
 medianTm = median(AllSynNuc[!is.na(AllSynNuc$matur_tm),]$matur_tm)
 AllSynNuc$Longevity = "Na"
